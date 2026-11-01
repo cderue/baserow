@@ -1415,7 +1415,6 @@ class ViewHandler:
             "filter_type",
             "filters_disabled",
             "public_view_password",
-            "show_logo",
             "allow_public_export",
         ] + view_type.allowed_fields
 

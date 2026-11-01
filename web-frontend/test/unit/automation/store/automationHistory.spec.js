@@ -12,7 +12,7 @@ const history = (extra = {}) => ({
   id: HISTORY_ID,
   status: 'started',
   cancellation_requested_on: null,
-  plugin_data: { premium: { some: 'value' } },
+  plugin_data: { custom_extension: { some: 'value' } },
   ...extra,
 })
 

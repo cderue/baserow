@@ -1,4 +1,4 @@
-"""Tests for create_workflows, shared by MCP and Kuma."""
+"""Tests for create_workflows, shared by MCP and AI Agent."""
 
 from unittest.mock import patch
 

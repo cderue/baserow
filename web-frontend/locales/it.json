@@ -344,9 +344,6 @@
             "formLinkName": "modulo"
         }
     },
-    "premium": {
-        "deactivated": "Disponibile nella versione premium"
-    },
     "trashType": {
         "workspace": "progetto",
         "agent": "agente",

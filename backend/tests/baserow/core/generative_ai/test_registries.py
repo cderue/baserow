@@ -103,8 +103,8 @@ def test_generic_model_map_preserves_enabled_providers_with_no_models():
         "test_empty_generative_ai": []
     }
     assert registry.get_enabled_models_per_type(
-        feature_type="ai_fields", state=state
-    ) == {"test_empty_generative_ai": ["ai_fields-only"]}
+        feature_type="other_feature", state=state
+    ) == {"test_empty_generative_ai": ["other_feature-only"]}
 
 
 @pytest.mark.django_db

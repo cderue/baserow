@@ -35,7 +35,7 @@ describe('AIProviderModelFormModal', () => {
         model: {
           id: 2,
           model_identifier: 'gpt-5.6',
-          feature_types: ['ai_agent', 'ai_fields', 'kuma'],
+          feature_types: ['ai_agent'],
           ...modelValues,
         },
       },
@@ -55,11 +55,11 @@ describe('AIProviderModelFormModal', () => {
   test('confirms before saving when a feature in use is unchecked', async () => {
     const { wrapper, dispatch } = await mountEditForm({
       usage: [
-        { featureType: 'ai_fields', count: 2 },
+        { featureType: 'ai_agent', count: 2 },
         { featureType: 'ai_agent', count: 0 },
       ],
     })
-    await uncheckFeatures(wrapper, ['ai_agent', 'kuma'])
+    await uncheckFeatures(wrapper, ['ai_agent'])
 
     await wrapper.find('.actions button').trigger('click')
     await flushPromises()
@@ -86,7 +86,7 @@ describe('AIProviderModelFormModal', () => {
       modelId: 2,
       values: {
         model_identifier: 'gpt-5.6',
-        feature_types: ['ai_agent', 'kuma'],
+        feature_types: ['ai_agent'],
       },
     })
   })
@@ -94,11 +94,11 @@ describe('AIProviderModelFormModal', () => {
   test('saves without a confirmation when the unchecked feature is unused', async () => {
     const { wrapper, dispatch } = await mountEditForm({
       usage: [
-        { featureType: 'ai_fields', count: 2 },
+        { featureType: 'ai_agent', count: 2 },
         { featureType: 'ai_agent', count: 0 },
       ],
     })
-    await uncheckFeatures(wrapper, ['ai_fields', 'kuma'])
+    await uncheckFeatures(wrapper, ['ai_agent'])
 
     await wrapper.find('.actions button').trigger('click')
     await flushPromises()
@@ -108,14 +108,14 @@ describe('AIProviderModelFormModal', () => {
       modelId: 2,
       values: {
         model_identifier: 'gpt-5.6',
-        feature_types: ['ai_fields', 'kuma'],
+        feature_types: ['ai_agent'],
       },
     })
   })
 
   test('does not look up usage when no feature is unchecked', async () => {
     const { wrapper, dispatch } = await mountEditForm({
-      usage: [{ featureType: 'ai_fields', count: 2 }],
+      usage: [{ featureType: 'ai_agent', count: 2 }],
     })
 
     await wrapper.find('.actions button').trigger('click')
@@ -129,7 +129,7 @@ describe('AIProviderModelFormModal', () => {
       modelId: 2,
       values: {
         model_identifier: 'gpt-5.6',
-        feature_types: ['ai_agent', 'ai_fields', 'kuma'],
+        feature_types: ['ai_agent'],
       },
     })
   })
@@ -148,12 +148,12 @@ describe('AIProviderModelFormModal', () => {
         model: {
           id: 2,
           model_identifier: 'gpt-5.6',
-          feature_types: ['ai_agent', 'ai_fields', 'kuma'],
+          feature_types: ['ai_agent'],
         },
       },
     })
     await wrapper.vm.show()
-    await uncheckFeatures(wrapper, ['ai_agent', 'kuma'])
+    await uncheckFeatures(wrapper, ['ai_agent'])
 
     await wrapper.find('.actions button').trigger('click')
     await flushPromises()
@@ -168,7 +168,7 @@ describe('AIProviderModelFormModal', () => {
   test('confirms a rename while consumers still point at the old identifier', async () => {
     const { wrapper, dispatch } = await mountEditForm({
       usage: [
-        { featureType: 'ai_fields', count: 2 },
+        { featureType: 'ai_agent', count: 2 },
         { featureType: 'ai_agent', count: 1 },
       ],
     })
@@ -197,14 +197,14 @@ describe('AIProviderModelFormModal', () => {
       modelId: 2,
       values: {
         model_identifier: 'gpt-5.7',
-        feature_types: ['ai_agent', 'ai_fields', 'kuma'],
+        feature_types: ['ai_agent'],
       },
     })
   })
 
   test('saves a rename nothing depends on without a confirmation', async () => {
     const { wrapper, dispatch } = await mountEditForm({
-      usage: [{ featureType: 'ai_fields', count: 0 }],
+      usage: [{ featureType: 'ai_agent', count: 0 }],
     })
     wrapper.vm.values.model_identifier = 'gpt-5.7'
     await flushPromises()
@@ -217,16 +217,16 @@ describe('AIProviderModelFormModal', () => {
       modelId: 2,
       values: {
         model_identifier: 'gpt-5.7',
-        feature_types: ['ai_agent', 'ai_fields', 'kuma'],
+        feature_types: ['ai_agent'],
       },
     })
   })
 
   test('keeps the confirmation open across a re-render and closes both on save', async () => {
     const { wrapper, dispatch } = await mountEditForm({
-      usage: [{ featureType: 'ai_fields', count: 2 }],
+      usage: [{ featureType: 'ai_agent', count: 2 }],
     })
-    await uncheckFeatures(wrapper, ['ai_agent', 'kuma'])
+    await uncheckFeatures(wrapper, ['ai_agent'])
     await wrapper.find('.actions button').trigger('click')
     await flushPromises()
 
@@ -322,7 +322,7 @@ describe('AIProviderModelFormModal', () => {
       providerId: 1,
       values: {
         model_identifier: 'claude-sonnet-5',
-        feature_types: ['ai_agent', 'ai_fields', 'kuma'],
+        feature_types: ['ai_agent'],
       },
     })
     expect(dispatch).not.toHaveBeenCalledWith(
@@ -398,7 +398,7 @@ describe('AIProviderModelFormModal', () => {
       providerId: 1,
       values: {
         model_identifier: 'custom-model',
-        feature_types: ['ai_agent', 'ai_fields', 'kuma'],
+        feature_types: ['ai_agent'],
       },
     })
     expect(dispatch).not.toHaveBeenCalledWith(

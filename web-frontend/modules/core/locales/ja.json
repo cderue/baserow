@@ -38,8 +38,7 @@
         "replayGuidedTour": "ガイドツアーを再開",
         "notifications": "通知",
         "adminSettings": "管理者設定",
-        "people": "ユーザー",
-        "licenses": "ライセンス"
+        "people": "ユーザー"
     },
     "accountForm": {
         "nameLabel": "あなたの名前",

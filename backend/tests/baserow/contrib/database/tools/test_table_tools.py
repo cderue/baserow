@@ -1,4 +1,4 @@
-"""Tests for the table tools shared by MCP and Kuma."""
+"""Tests for the table tools shared by MCP and AI Agent."""
 
 import json
 from unittest.mock import patch
@@ -156,8 +156,8 @@ def test_create_tables_over_mcp_lists_only_the_shared_arguments(data_fixture):
     assert set(tool.inputSchema["properties"]) == {"database_id", "tables"}
     assert tool.annotations.readOnlyHint is False
     assert tool.annotations.destructiveHint is False
-    for kuma_only in ("ask_user", "navigate", "get_tables_schema", "sample"):
-        assert kuma_only not in tool.description
+    for agent_only in ("ask_user", "navigate", "get_tables_schema", "sample"):
+        assert agent_only not in tool.description
 
 
 @pytest.mark.django_db

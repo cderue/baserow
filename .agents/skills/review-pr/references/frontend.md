@@ -12,7 +12,7 @@ types, browser behavior, routes, translations, and SCSS.
   copy injected/prop state and then reconcile two versions or fall back between
   stores.
 - Generic components receive normalized capabilities such as `readOnly`; they do
-  not discover product, public/authenticated, premium, or enterprise context by
+  not discover product or public/authenticated context by
   reaching into parents or unrelated stores.
 - Components declare the props and events they use. Avoid `$parent`, DOM reach-ins,
   another store's mutation names, or `$refs` as a domain API; expose a method or move

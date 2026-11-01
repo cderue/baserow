@@ -92,9 +92,7 @@ application roles and lifecycle operations. Callers reference the application ID
 Configuration, invocation and private conversation/run visibility remain separate
 permission concerns.
 
-Per-agent roles need role-based access control (RBAC), available on the Advanced and
-Enterprise plans. Without it, members get the same access to every agent, based on their
-workspace role.
+Members access agents according to their workspace role.
 
 We expect users to start by wanting to build a single agent. Making that agent the
 application gives them one thing to name, configure, open and manage. Independent roles

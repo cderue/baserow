@@ -334,9 +334,6 @@
             "formLinkName": "formulario"
         }
     },
-    "premium": {
-        "deactivated": "Disponible en versión premium"
-    },
     "trashType": {
         "workspace": "grupo",
         "application": "aplicación",

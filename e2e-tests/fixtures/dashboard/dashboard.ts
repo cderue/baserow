@@ -18,7 +18,6 @@ export type DashboardSharing = {
   public: boolean;
   slug: string;
   public_has_password: boolean;
-  show_logo: boolean;
 };
 
 export class Dashboard {
@@ -110,9 +109,8 @@ export async function getDashboardSharing(
     public: isPublic,
     slug,
     public_has_password,
-    show_logo,
   } = response.data;
-  return { public: isPublic, slug, public_has_password, show_logo };
+  return { public: isPublic, slug, public_has_password };
 }
 
 /**
@@ -133,7 +131,6 @@ export async function updateDashboardSharing(
     public: isPublic,
     slug,
     public_has_password,
-    show_logo,
   } = response.data;
-  return { public: isPublic, slug, public_has_password, show_logo };
+  return { public: isPublic, slug, public_has_password };
 }

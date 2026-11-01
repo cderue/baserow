@@ -160,7 +160,10 @@ class PublicFormViewSerializer(serializers.ModelSerializer):
     fields = PublicFormViewFieldOptionsSerializer(
         many=True, source="active_field_options"
     )
-    show_logo = serializers.BooleanField(required=False)
+    show_logo = serializers.SerializerMethodField()
+
+    def get_show_logo(self, instance):
+        return True
 
     class Meta:
         model = FormView

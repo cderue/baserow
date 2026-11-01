@@ -852,8 +852,7 @@ def list_tables(
     ]
 
 
-# TODO: remove after 2.6. The names get_table_schema used before it shared Kuma's
-# field serializer, kept for the MCP clients that read them.
+# TODO: remove after 2.6. Keep these legacy field keys for MCP clients that read them.
 def _legacy_field_keys(field: BaserowField) -> dict[str, Any]:
     if isinstance(field, (SingleSelectField, MultipleSelectField)):
         return {

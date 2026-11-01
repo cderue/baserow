@@ -6,8 +6,7 @@ import pytest
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 
 from baserow.core.ai_provider.constants import (
-    AI_PROVIDER_FEATURE_AI_FIELDS,
-    AI_PROVIDER_FEATURE_KUMA,
+    AI_PROVIDER_FEATURE_AI_AGENT,
     AI_PROVIDER_FEATURE_MODE_DISABLED,
     AI_PROVIDER_FEATURE_MODE_MODEL,
 )
@@ -86,139 +85,20 @@ def test_listing_workspaces_resolves_legacy_models_alongside_instance_provider(
     assert (
         response.json()[0]["generative_ai_models_enabled"]["openai"] == expected_models
     )
-    assert response.json()[0]["ai_features"]["ai_fields"] == {
+    assert response.json()[0]["ai_features"]["ai_agent"] == {
         "is_enabled": True,
         "models": {"openai": expected_models},
     }
 
 
-@pytest.mark.django_db
-@pytest.mark.parametrize("workspace_count", [1, 10])
-def test_listing_workspaces_resolves_ai_state_independently_of_workspace_count(
-    api_client, data_fixture, settings, workspace_count
-):
-    """
-    The AI provider state of every listed workspace is loaded in one batch.
 
-    Resolving it per workspace would put an N+1 on the busiest endpoint, so the
-    query count must not grow with the number of workspaces. The request cache
-    is switched off here because it must not be what keeps this flat.
-    """
 
-    settings.BASEROW_USE_LOCAL_CACHE = False
-    user, token = data_fixture.create_user_and_token()
-    for _ in range(workspace_count):
-        data_fixture.create_workspace(user=user)
-    provider = AIProviderConfig.objects.create(
-        provider_type="openai", api_key="instance-secret"
-    )
-    model = AIProviderModel.objects.create(
-        provider_config=provider,
-        model_identifier="shared-model",
-        feature_types=[AI_PROVIDER_FEATURE_AI_FIELDS, AI_PROVIDER_FEATURE_KUMA],
-    )
-    AIProviderHandler.update_feature_setting(
-        AI_PROVIDER_FEATURE_KUMA, AI_PROVIDER_FEATURE_MODE_MODEL, model=model
-    )
-    headers = {"HTTP_AUTHORIZATION": f"JWT {token}"}
 
-    with CaptureQueriesContext(connection) as queries:
-        response = api_client.get(reverse("api:workspaces:list"), **headers)
 
-    assert response.status_code == HTTP_200_OK
-    assert len(response.json()) == workspace_count
-    provider_tables = {
-        AIProviderConfig._meta.db_table,
-        AIProviderModel._meta.db_table,
-        AIProviderFeatureSetting._meta.db_table,
-        AIProviderWorkspaceOverride._meta.db_table,
-    }
-    provider_queries = [
-        query["sql"]
-        for query in queries.captured_queries
-        if any(table in query["sql"] for table in provider_tables)
-    ]
-    assert len(provider_queries) == 4, provider_queries
 
 
 @pytest.mark.django_db
-def test_listing_workspaces_includes_effective_kuma_availability(
-    api_client, data_fixture
-):
-    user, token = data_fixture.create_user_and_token()
-    workspace = data_fixture.create_workspace(user=user)
-    provider = AIProviderConfig.objects.create(
-        provider_type="openai", api_key="instance-secret"
-    )
-    model = AIProviderModel.objects.create(
-        provider_config=provider,
-        model_identifier="kuma-model",
-        feature_types=[AI_PROVIDER_FEATURE_KUMA],
-    )
-    AIProviderHandler.update_feature_setting(
-        AI_PROVIDER_FEATURE_KUMA,
-        AI_PROVIDER_FEATURE_MODE_MODEL,
-        model=model,
-    )
-    headers = {"HTTP_AUTHORIZATION": f"JWT {token}"}
-
-    response = api_client.get(reverse("api:workspaces:list"), **headers)
-
-    assert response.status_code == HTTP_200_OK
-    assert response.json()[0]["ai_features"]["kuma"] == {
-        "is_enabled": True,
-        "state": "inherited",
-    }
-
-    AIProviderHandler.update_feature_setting(
-        AI_PROVIDER_FEATURE_KUMA,
-        AI_PROVIDER_FEATURE_MODE_DISABLED,
-        workspace=workspace,
-    )
-    response = api_client.get(reverse("api:workspaces:list"), **headers)
-    assert response.json()[0]["ai_features"]["kuma"] == {
-        "is_enabled": False,
-        "state": "disabled",
-    }
-
-
-@pytest.mark.django_db
-def test_listing_workspaces_keeps_inherited_kuma_after_instance_provider_switch_off(
-    api_client, data_fixture, settings
-):
-    settings.BASEROW_ENTERPRISE_ASSISTANT_LLM_MODEL = ""
-    user, token = data_fixture.create_user_and_token()
-    workspace = data_fixture.create_workspace(user=user)
-    provider = AIProviderConfig.objects.create(
-        provider_type="openai", api_key="instance-secret"
-    )
-    kuma_model = AIProviderModel.objects.create(
-        provider_config=provider,
-        model_identifier="kuma-model",
-        feature_types=[AI_PROVIDER_FEATURE_KUMA],
-    )
-    AIProviderModel.objects.create(
-        provider_config=provider,
-        model_identifier="fields-model",
-        feature_types=[AI_PROVIDER_FEATURE_AI_FIELDS],
-    )
-    AIProviderHandler.set_workspace_provider_enabled(workspace, provider, False)
-    AIProviderHandler.update_feature_setting(
-        AI_PROVIDER_FEATURE_KUMA, AI_PROVIDER_FEATURE_MODE_MODEL, model=kuma_model
-    )
-
-    response = api_client.get(
-        reverse("api:workspaces:list"), HTTP_AUTHORIZATION=f"JWT {token}"
-    )
-
-    assert response.status_code == HTTP_200_OK
-    ai_features = response.json()[0]["ai_features"]
-    assert ai_features["kuma"] == {"is_enabled": True, "state": "inherited"}
-    assert ai_features["ai_fields"] == {"is_enabled": False, "models": {}}
-
-
-@pytest.mark.django_db
-def test_listing_workspaces_keeps_generic_models_and_filters_ai_fields(
+def test_listing_workspaces_keeps_generic_models_and_filters_retired_features(
     api_client, data_fixture
 ):
     user, token = data_fixture.create_user_and_token()
@@ -228,13 +108,13 @@ def test_listing_workspaces_keeps_generic_models_and_filters_ai_fields(
     )
     AIProviderModel.objects.create(
         provider_config=provider,
-        model_identifier="ai-fields-model",
-        feature_types=[AI_PROVIDER_FEATURE_AI_FIELDS],
+        model_identifier="agent-model",
+        feature_types=[AI_PROVIDER_FEATURE_AI_AGENT],
     )
     AIProviderModel.objects.create(
         provider_config=provider,
-        model_identifier="kuma-model",
-        feature_types=[AI_PROVIDER_FEATURE_KUMA],
+        model_identifier="retired-feature-model",
+        feature_types=["removed_feature"],
     )
     AIProviderModel.objects.create(
         provider_config=provider,
@@ -250,13 +130,13 @@ def test_listing_workspaces_keeps_generic_models_and_filters_ai_fields(
     assert response.status_code == HTTP_200_OK
     workspace = response.json()[0]
     assert workspace["generative_ai_models_enabled"]["openai"] == [
-        "ai-fields-model",
-        "kuma-model",
+        "agent-model",
+        "retired-feature-model",
         "unassigned-model",
     ]
-    assert workspace["ai_features"]["ai_fields"] == {
+    assert workspace["ai_features"]["ai_agent"] == {
         "is_enabled": True,
-        "models": {"openai": ["ai-fields-model"]},
+        "models": {"openai": ["agent-model"]},
     }
 
 
@@ -712,7 +592,7 @@ def test_list_workspaces_resolves_disabled_instance_models_with_legacy_settings(
     assert response.status_code == HTTP_200_OK
     enabled_models = response.json()[0]["generative_ai_models_enabled"]
     assert enabled_models.get("openai", []) == expected_models
-    assert response.json()[0]["ai_features"]["ai_fields"] == {
+    assert response.json()[0]["ai_features"]["ai_agent"] == {
         "is_enabled": bool(expected_models),
         "models": {"openai": expected_models} if expected_models else {},
     }

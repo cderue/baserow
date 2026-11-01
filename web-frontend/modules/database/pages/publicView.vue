@@ -163,11 +163,7 @@ const fields = computed(() => $store.getters['field/getAll'])
 const view = computed(() => $store.getters['view/getSelected'])
 
 useHead(() => {
-  const head = { title: view.value?.name || 'View' }
-  if (view.value && !view.value.show_logo) {
-    head.titleTemplate = '%s'
-  }
-  return head
+  return { title: view.value?.name || 'View' }
 })
 
 let keydownEvent = null

@@ -15,11 +15,11 @@ class AIProviderModelFeatureType(Instance):
     ``supports_default_model`` controls how the feature selects its model.
     ``True`` means an administrator picks one model for the whole scope
     (instance or workspace), stored as an ``AIProviderFeatureSetting`` row
-    whose RESTRICT foreign key blocks deleting the selected model (Kuma).
+    whose RESTRICT foreign key blocks deleting the selected model.
     ``False`` means each consumer stores its own provider type and model
     identifier. Those references create no setting row and do not block deletion;
     a removed model surfaces as a validation or dispatch error on the consumer
-    instead (AI fields, AI Agent nodes).
+    instead (for example, in AI Agent nodes).
     """
 
     supports_default_model = False

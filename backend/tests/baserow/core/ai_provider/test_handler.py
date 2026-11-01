@@ -11,8 +11,6 @@ from pydantic_ai.models.test import TestModel
 
 from baserow.core.ai_provider.constants import (
     AI_PROVIDER_FEATURE_AI_AGENT,
-    AI_PROVIDER_FEATURE_AI_FIELDS,
-    AI_PROVIDER_FEATURE_KUMA,
     AI_PROVIDER_FEATURE_MODE_DISABLED,
     AI_PROVIDER_FEATURE_MODE_INHERIT,
     AI_PROVIDER_FEATURE_MODE_LEGACY,
@@ -90,10 +88,7 @@ def test_omitted_model_feature_types_remain_available_to_legacy_consumers():
         models_data=[{"model_identifier": "gpt-5.4"}],
     )
 
-    assert provider.models.get().feature_types == [
-        AI_PROVIDER_FEATURE_AI_FIELDS,
-        AI_PROVIDER_FEATURE_AI_AGENT,
-    ]
+    assert provider.models.get().feature_types == [AI_PROVIDER_FEATURE_AI_AGENT]
 
 
 @pytest.mark.django_db
@@ -104,10 +99,7 @@ def test_orm_model_default_remains_available_to_legacy_consumers():
         provider_config=provider, model_identifier="gpt-5.4"
     )
 
-    assert model.feature_types == [
-        AI_PROVIDER_FEATURE_AI_FIELDS,
-        AI_PROVIDER_FEATURE_AI_AGENT,
-    ]
+    assert model.feature_types == [AI_PROVIDER_FEATURE_AI_AGENT]
 
 
 @pytest.mark.django_db
@@ -353,7 +345,7 @@ def test_changing_model_features_clears_stale_test_result():
     model = AIProviderModel.objects.create(
         provider_config=provider,
         model_identifier="model",
-        feature_types=[AI_PROVIDER_FEATURE_AI_FIELDS],
+        feature_types=[AI_PROVIDER_FEATURE_AI_AGENT],
         last_test_at=timezone.now(),
         last_test_status=AIProviderModel.TestStatus.SUCCESS,
         last_test_capabilities={
@@ -364,10 +356,7 @@ def test_changing_model_features_clears_stale_test_result():
         },
     )
 
-    model = AIProviderHandler.update_model(
-        model,
-        feature_types=[AI_PROVIDER_FEATURE_AI_FIELDS, AI_PROVIDER_FEATURE_KUMA],
-    )
+    model = AIProviderHandler.update_model(model, feature_types=[])
 
     assert model.last_test_at is None
     assert model.last_test_status is None
@@ -460,7 +449,7 @@ def test_both_probes_share_one_token_budget():
 
     # A budget that only fits a short answer fails reasoning models before they emit
     # any content, so an AI-fields-only model must not be probed more tightly than a
-    # Kuma one.
+    # AI Agent one.
     assert text_budget["max_tokens"] == AI_PROVIDER_TEST_MAX_TOKENS
     assert tool_budget["max_tokens"] == AI_PROVIDER_TEST_MAX_TOKENS
 
@@ -502,47 +491,6 @@ def test_text_probe_deadline_cancels_the_request_and_closes_the_model(monkeypatc
     assert events == ["cancelled", "closed"]
 
 
-def test_model_test_derives_each_feature_result_from_shared_capabilities():
-    capability_results = {
-        AI_PROVIDER_MODEL_CAPABILITY_TEXT: {
-            "status": AIProviderModel.TestStatus.SUCCESS,
-            "error": "",
-        },
-        AI_PROVIDER_MODEL_CAPABILITY_TOOLS: {
-            "status": AIProviderModel.TestStatus.FAILURE,
-            "error": "Tool calling is unavailable.",
-        },
-    }
-
-    with patch.object(
-        AIProviderHandler,
-        "_test_text_and_tools",
-        return_value=capability_results,
-    ) as test_text_and_tools:
-        result = AIProviderHandler._test_model(
-            "mistral",
-            "model",
-            settings_override={"api_key": "secret", "models": ["model"]},
-            secret_values=["secret"],
-            model_id=1,
-            feature_types=[AI_PROVIDER_FEATURE_AI_FIELDS, AI_PROVIDER_FEATURE_KUMA],
-        )
-
-    test_text_and_tools.assert_called_once()
-    assert result["status"] == AIProviderModel.TestStatus.FAILURE
-    assert result["error"] == "Tool calling is unavailable."
-    assert result["feature_results"] == [
-        {
-            "feature_type": AI_PROVIDER_FEATURE_AI_FIELDS,
-            "status": AIProviderModel.TestStatus.SUCCESS,
-            "error": "",
-        },
-        {
-            "feature_type": AI_PROVIDER_FEATURE_KUMA,
-            "status": AIProviderModel.TestStatus.FAILURE,
-            "error": "Tool calling is unavailable.",
-        },
-    ]
 
 
 def test_model_test_treats_an_unregistered_persisted_feature_as_text_only(
@@ -565,62 +513,20 @@ def test_model_test_treats_an_unregistered_persisted_feature_as_text_only(
             settings_override={"api_key": "secret", "models": ["model"]},
             secret_values=["secret"],
             model_id=1,
-            feature_types=[AI_PROVIDER_FEATURE_AI_FIELDS],
+            feature_types=["removed_feature"],
         )
 
     test_text.assert_called_once()
     assert result["status"] == AIProviderModel.TestStatus.SUCCESS
     assert result["feature_results"] == [
         {
-            "feature_type": AI_PROVIDER_FEATURE_AI_FIELDS,
+            "feature_type": "removed_feature",
             "status": AIProviderModel.TestStatus.SUCCESS,
             "error": "",
         }
     ]
 
 
-@pytest.mark.parametrize(
-    ("provider_type", "model_identifier", "model_type_class"),
-    [
-        ("google", "gemini-2.5-flash", GoogleGenerativeAIModelType),
-        ("groq", "openai/gpt-oss-120b", GroqGenerativeAIModelType),
-        ("xai", "grok-4.3", XaiGenerativeAIModelType),
-        ("zai", "glm-5.2", ZaiGenerativeAIModelType),
-    ],
-)
-def test_database_only_provider_models_run_the_kuma_tool_compatibility_probe(
-    provider_type, model_identifier, model_type_class
-):
-    settings_override = {
-        "api_key": f"{provider_type}-key",
-        "models": [model_identifier],
-    }
-    with patch.object(
-        model_type_class,
-        "get_ai_model",
-        return_value=TestModel(call_tools="all"),
-    ) as get_ai_model:
-        result = AIProviderHandler._test_model(
-            provider_type,
-            model_identifier,
-            settings_override=settings_override,
-            secret_values=[settings_override["api_key"]],
-            model_id=1,
-            feature_types=[AI_PROVIDER_FEATURE_KUMA],
-        )
-
-    get_ai_model.assert_called_once_with(
-        model_identifier,
-        settings_override=settings_override,
-    )
-    assert result["status"] == AIProviderModel.TestStatus.SUCCESS
-    assert result["feature_results"] == [
-        {
-            "feature_type": AI_PROVIDER_FEATURE_KUMA,
-            "status": AIProviderModel.TestStatus.SUCCESS,
-            "error": "",
-        }
-    ]
 
 
 @pytest.mark.django_db
@@ -645,7 +551,7 @@ def test_model_test_uses_a_complete_provider_settings_override(data_fixture):
         },
         "feature_results": [
             {
-                "feature_type": AI_PROVIDER_FEATURE_AI_FIELDS,
+                "feature_type": AI_PROVIDER_FEATURE_AI_AGENT,
                 "status": "success",
                 "error": "",
             }
@@ -663,279 +569,16 @@ def test_model_test_uses_a_complete_provider_settings_override(data_fixture):
     }
 
 
-@pytest.mark.django_db
-def test_kuma_model_selection_inherits_overrides_and_disables(data_fixture):
-    workspace = data_fixture.create_workspace()
-    instance_provider = AIProviderConfig.objects.create(
-        provider_type="openai", api_key="instance-key"
-    )
-    instance_model = AIProviderModel.objects.create(
-        provider_config=instance_provider,
-        model_identifier="instance-model",
-        feature_types=[AI_PROVIDER_FEATURE_KUMA],
-    )
-    workspace_provider = AIProviderConfig.objects.create(
-        workspace=workspace,
-        provider_type="anthropic",
-        api_key="workspace-key",
-    )
-    workspace_model = AIProviderModel.objects.create(
-        provider_config=workspace_provider,
-        model_identifier="workspace-model",
-        feature_types=[AI_PROVIDER_FEATURE_KUMA],
-    )
-
-    AIProviderHandler.update_feature_setting(
-        AI_PROVIDER_FEATURE_KUMA,
-        AI_PROVIDER_FEATURE_MODE_MODEL,
-        model=instance_model,
-    )
-    inherited = AIProviderHandler.list_feature_settings(workspace)[0]
-    assert inherited["mode"] == AI_PROVIDER_FEATURE_MODE_INHERIT
-    assert inherited["state"] == "inherited"
-    assert inherited["model"] == instance_model
-
-    overridden = AIProviderHandler.update_feature_setting(
-        AI_PROVIDER_FEATURE_KUMA,
-        AI_PROVIDER_FEATURE_MODE_MODEL,
-        workspace=workspace,
-        model=workspace_model,
-    )
-    assert overridden["state"] == "overridden"
-    assert overridden["model"] == workspace_model
-
-    disabled = AIProviderHandler.update_feature_setting(
-        AI_PROVIDER_FEATURE_KUMA,
-        AI_PROVIDER_FEATURE_MODE_DISABLED,
-        workspace=workspace,
-    )
-    assert disabled["state"] == "disabled"
-    assert disabled["model"] is None
-
-    inherited_again = AIProviderHandler.update_feature_setting(
-        AI_PROVIDER_FEATURE_KUMA,
-        AI_PROVIDER_FEATURE_MODE_INHERIT,
-        workspace=workspace,
-    )
-    assert inherited_again["state"] == "inherited"
-    assert inherited_again["model"] == instance_model
-
-    legacy_again = AIProviderHandler.update_feature_setting(
-        AI_PROVIDER_FEATURE_KUMA,
-        AI_PROVIDER_FEATURE_MODE_LEGACY,
-    )
-    assert legacy_again["mode"] == AI_PROVIDER_FEATURE_MODE_LEGACY
-    assert legacy_again["state"] == "unconfigured"
-    assert not AIProviderFeatureSetting.objects.filter(workspace__isnull=True).exists()
 
 
-@pytest.mark.django_db
-def test_inherited_state_follows_the_instance_selection_not_workspace_switch_offs(
-    data_fixture,
-):
-    workspace = data_fixture.create_workspace()
-    instance_provider = AIProviderConfig.objects.create(
-        provider_type="openai", api_key="instance-key"
-    )
-    instance_model = AIProviderModel.objects.create(
-        provider_config=instance_provider,
-        model_identifier="instance-model",
-        feature_types=[AI_PROVIDER_FEATURE_KUMA],
-    )
-
-    unconfigured = AIProviderHandler.list_feature_settings(workspace)[0]
-    assert unconfigured["inherited_state"] == "unconfigured"
-
-    AIProviderHandler.update_feature_setting(
-        AI_PROVIDER_FEATURE_KUMA,
-        AI_PROVIDER_FEATURE_MODE_MODEL,
-        model=instance_model,
-    )
-    configured = AIProviderHandler.list_feature_settings(workspace)[0]
-    assert configured["inherited_state"] == "configured"
-    assert configured["inherited_model"] == instance_model
-
-    AIProviderHandler.set_workspace_provider_enabled(
-        workspace, instance_provider, False
-    )
-    switched_off = AIProviderHandler.list_feature_settings(workspace)[0]
-    assert switched_off["inherited_state"] == "configured"
-    assert switched_off["inherited_model"] == instance_model
-
-    AIProviderModel.objects.filter(id=instance_model.id).update(is_enabled=False)
-    clear_ai_provider_state_cache()
-    assert (
-        AIProviderHandler.list_feature_settings(workspace)[0]["inherited_state"]
-        == "invalid"
-    )
-    assert AIProviderHandler.list_feature_settings()[0]["state"] == "invalid"
-
-    AIProviderHandler.update_feature_setting(
-        AI_PROVIDER_FEATURE_KUMA,
-        AI_PROVIDER_FEATURE_MODE_DISABLED,
-    )
-    assert (
-        AIProviderHandler.list_feature_settings(workspace)[0]["inherited_state"]
-        == "disabled"
-    )
-    assert AIProviderHandler.list_feature_settings()[0]["inherited_state"] is None
 
 
-@pytest.mark.django_db
-def test_switch_off_keeps_inherited_kuma_but_rejects_explicit_instance_selection(
-    data_fixture,
-):
-    workspace = data_fixture.create_workspace()
-    instance_provider = AIProviderConfig.objects.create(
-        provider_type="openai", api_key="instance-key"
-    )
-    instance_model = AIProviderModel.objects.create(
-        provider_config=instance_provider,
-        model_identifier="instance-model",
-        feature_types=[AI_PROVIDER_FEATURE_KUMA],
-    )
-    AIProviderHandler.update_feature_setting(
-        AI_PROVIDER_FEATURE_KUMA,
-        AI_PROVIDER_FEATURE_MODE_MODEL,
-        model=instance_model,
-    )
-
-    AIProviderHandler.set_workspace_provider_enabled(
-        workspace, instance_provider, False
-    )
-
-    inherited = AIProviderHandler.list_feature_settings(workspace)[0]
-    assert inherited["state"] == "inherited"
-    assert inherited["model"] == instance_model
-    with pytest.raises(AIProviderFeatureModelNotAvailable):
-        AIProviderHandler.update_feature_setting(
-            AI_PROVIDER_FEATURE_KUMA,
-            AI_PROVIDER_FEATURE_MODE_MODEL,
-            workspace=workspace,
-            model=instance_model,
-        )
-
-    AIProviderHandler.update_feature_setting(
-        AI_PROVIDER_FEATURE_KUMA,
-        AI_PROVIDER_FEATURE_MODE_DISABLED,
-        workspace=workspace,
-    )
-    inherited_again = AIProviderHandler.update_feature_setting(
-        AI_PROVIDER_FEATURE_KUMA,
-        AI_PROVIDER_FEATURE_MODE_INHERIT,
-        workspace=workspace,
-    )
-    assert inherited_again["state"] == "inherited"
-    assert inherited_again["model"] == instance_model
 
 
-@pytest.mark.django_db
-def test_workspace_disabled_kuma_stays_disabled_when_instance_provider_is_switched_off(
-    data_fixture, settings
-):
-    settings.BASEROW_ENTERPRISE_ASSISTANT_LLM_MODEL = "openai:legacy-model"
-    workspace = data_fixture.create_workspace()
-    instance_provider = AIProviderConfig.objects.create(
-        provider_type="openai", api_key="instance-key"
-    )
-    instance_model = AIProviderModel.objects.create(
-        provider_config=instance_provider,
-        model_identifier="instance-model",
-        feature_types=[AI_PROVIDER_FEATURE_KUMA],
-    )
-    AIProviderHandler.update_feature_setting(
-        AI_PROVIDER_FEATURE_KUMA,
-        AI_PROVIDER_FEATURE_MODE_DISABLED,
-        workspace=workspace,
-    )
-    AIProviderHandler.set_workspace_provider_enabled(
-        workspace, instance_provider, False
-    )
-    AIProviderHandler.update_feature_setting(
-        AI_PROVIDER_FEATURE_KUMA,
-        AI_PROVIDER_FEATURE_MODE_MODEL,
-        model=instance_model,
-    )
-
-    kuma = AIProviderHandler.list_feature_settings(workspace)[0]
-    assert kuma["mode"] == AI_PROVIDER_FEATURE_MODE_DISABLED
-    assert kuma["state"] == "disabled"
-    assert kuma["model"] is None
-    assert kuma["inherited_state"] == "configured"
-    assert kuma["inherited_model"] == instance_model
-    availability = ai_provider_model_feature_type_registry.get_workspace_availability(
-        workspace
-    )
-    assert availability[AI_PROVIDER_FEATURE_KUMA] == {
-        "is_enabled": False,
-        "state": "disabled",
-    }
 
 
-@pytest.mark.django_db
-def test_in_use_error_names_the_model_an_explicit_workspace_selection_uses(
-    data_fixture,
-):
-    workspace = data_fixture.create_workspace()
-    instance_provider = AIProviderConfig.objects.create(
-        provider_type="openai", api_key="instance-key"
-    )
-    instance_model = AIProviderModel.objects.create(
-        provider_config=instance_provider,
-        model_identifier="instance-model",
-        feature_types=[AI_PROVIDER_FEATURE_KUMA],
-    )
-    AIProviderHandler.update_feature_setting(
-        AI_PROVIDER_FEATURE_KUMA,
-        AI_PROVIDER_FEATURE_MODE_MODEL,
-        workspace=workspace,
-        model=instance_model,
-    )
-
-    with pytest.raises(AIProviderModelInUse) as exc_info:
-        AIProviderHandler.set_workspace_provider_enabled(
-            workspace, instance_provider, False
-        )
-
-    assert exc_info.value.model_identifier == "instance-model"
-    assert exc_info.value.feature_types == [AI_PROVIDER_FEATURE_KUMA]
 
 
-@pytest.mark.django_db
-def test_selected_feature_model_cannot_be_made_unusable():
-    provider = AIProviderConfig.objects.create(provider_type="openai", api_key="secret")
-    model = AIProviderModel.objects.create(
-        provider_config=provider,
-        model_identifier="kuma-model",
-        feature_types=[AI_PROVIDER_FEATURE_KUMA],
-    )
-    unavailable_model = AIProviderModel.objects.create(
-        provider_config=provider,
-        model_identifier="ai-field-only-model",
-        feature_types=["ai_fields"],
-    )
-
-    with pytest.raises(AIProviderFeatureModelNotAvailable):
-        AIProviderHandler.update_feature_setting(
-            AI_PROVIDER_FEATURE_KUMA,
-            AI_PROVIDER_FEATURE_MODE_MODEL,
-            model=unavailable_model,
-        )
-
-    AIProviderHandler.update_feature_setting(
-        AI_PROVIDER_FEATURE_KUMA,
-        AI_PROVIDER_FEATURE_MODE_MODEL,
-        model=model,
-    )
-
-    with pytest.raises(AIProviderModelInUse):
-        AIProviderHandler.update_model(model, is_enabled=False)
-    with pytest.raises(AIProviderModelInUse):
-        AIProviderHandler.update_model(model, feature_types=[])
-    with pytest.raises(AIProviderModelInUse):
-        AIProviderHandler.delete_model(model)
-    with pytest.raises(AIProviderModelInUse):
-        AIProviderHandler.delete_provider(provider)
 
 
 @pytest.mark.django_db
@@ -981,35 +624,6 @@ def test_orphaned_optional_feature_selection_does_not_block_mutation(mutation):
         assert setting_exists
 
 
-@pytest.mark.django_db
-@pytest.mark.parametrize(
-    ("deleted_object", "expected_exception"),
-    [
-        ("model", AIProviderModelDoesNotExist),
-        ("provider", AIProviderDoesNotExist),
-    ],
-)
-def test_feature_selection_with_stale_model_raises_domain_error(
-    deleted_object, expected_exception
-):
-    provider = AIProviderConfig.objects.create(provider_type="openai", api_key="secret")
-    model = AIProviderModel.objects.create(
-        provider_config=provider,
-        model_identifier="kuma-model",
-        feature_types=[AI_PROVIDER_FEATURE_KUMA],
-    )
-    model.provider_config = provider
-    if deleted_object == "model":
-        AIProviderModel.objects.filter(id=model.id).delete()
-    else:
-        AIProviderConfig.objects.filter(id=provider.id).delete()
-
-    with pytest.raises(expected_exception):
-        AIProviderHandler.update_feature_setting(
-            AI_PROVIDER_FEATURE_KUMA,
-            AI_PROVIDER_FEATURE_MODE_MODEL,
-            model=model,
-        )
 
 
 def test_tool_capability_failure_redacts_secrets_from_the_reported_error():
@@ -1093,18 +707,6 @@ def test_in_use_error_pairs_the_named_model_with_only_its_own_features(monkeypat
     assert second_model.id
 
 
-def _select_model_for_kuma_in_new_workspaces(
-    data_fixture, model: AIProviderModel, count: int
-) -> None:
-    for _ in range(count):
-        AIProviderFeatureSetting.objects.create(
-            workspace=data_fixture.create_workspace(),
-            feature_type=AI_PROVIDER_FEATURE_KUMA,
-            model=model,
-            is_enabled=True,
-        )
-
-
 def _run_refused_mutation(
     mutation: Callable[[], object],
 ) -> tuple[AIProviderModelInUse, int, int]:
@@ -1131,41 +733,6 @@ def _run_refused_mutation(
     )
 
 
-@pytest.mark.django_db
-@pytest.mark.parametrize(
-    "mutation",
-    ["disable_provider", "delete_provider", "disable_model", "delete_model"],
-)
-def test_instance_in_use_guard_does_not_scale_with_selecting_workspaces(
-    data_fixture, mutation
-):
-    provider = AIProviderConfig.objects.create(provider_type="openai", api_key="secret")
-    model = AIProviderModel.objects.create(
-        provider_config=provider,
-        model_identifier="kuma-model",
-        feature_types=[AI_PROVIDER_FEATURE_KUMA],
-    )
-    mutations = {
-        "disable_provider": lambda: AIProviderHandler.update_provider(
-            provider, is_active=False
-        ),
-        "delete_provider": lambda: AIProviderHandler.delete_provider(provider),
-        "disable_model": lambda: AIProviderHandler.update_model(
-            model, is_enabled=False
-        ),
-        "delete_model": lambda: AIProviderHandler.delete_model(model),
-    }
-
-    _select_model_for_kuma_in_new_workspaces(data_fixture, model, 1)
-    one_error, one_queries, one_rows = _run_refused_mutation(mutations[mutation])
-    _select_model_for_kuma_in_new_workspaces(data_fixture, model, 4)
-    five_error, five_queries, five_rows = _run_refused_mutation(mutations[mutation])
-
-    for error in (one_error, five_error):
-        assert error.model_identifier == "kuma-model"
-        assert error.feature_types == [AI_PROVIDER_FEATURE_KUMA]
-    assert one_queries == five_queries
-    assert one_rows == five_rows
 
 
 @pytest.mark.django_db

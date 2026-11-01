@@ -1,6 +1,6 @@
 """
-Tools shared by the clients that act for a user: the MCP server, Kuma and the
-Agent Builder.
+Tools shared by the clients that act for a user: the MCP server and the Agent
+Builder.
 
 A shared tool is a plain function. Its first argument is a ``ToolContext`` and
 the others are annotated with ``typing.Annotated`` and ``pydantic.Field``, so

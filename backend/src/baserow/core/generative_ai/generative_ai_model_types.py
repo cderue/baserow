@@ -17,7 +17,7 @@ from .registries import (
 )
 
 if TYPE_CHECKING:
-    from baserow_premium.fields.ai_file import AIFile
+    from baserow.core.generative_ai.registries import GenerativeAIFile
 
 
 _IMAGE_EXTENSIONS = {".gif", ".jpg", ".jpeg", ".png", ".webp"}
@@ -237,7 +237,7 @@ class OpenAIFileHandler(FileHandler):
 
     def _upload(
         self,
-        ai_file: "AIFile",
+        ai_file: "GenerativeAIFile",
         workspace: Optional[Workspace] = None,
         settings_override: Optional[dict[str, Any]] = None,
     ) -> None:
@@ -258,7 +258,7 @@ class OpenAIFileHandler(FileHandler):
 
     def delete_file(
         self,
-        ai_file: "AIFile",
+        ai_file: "GenerativeAIFile",
         workspace: Optional[Workspace] = None,
         settings_override: Optional[dict[str, Any]] = None,
     ) -> None:
@@ -306,7 +306,7 @@ class AnthropicFileHandler(FileHandler):
 
     def _upload(
         self,
-        ai_file: "AIFile",
+        ai_file: "GenerativeAIFile",
         workspace: Optional[Workspace] = None,
         settings_override: Optional[dict[str, Any]] = None,
     ) -> None:
@@ -325,7 +325,7 @@ class AnthropicFileHandler(FileHandler):
 
     def delete_file(
         self,
-        ai_file: "AIFile",
+        ai_file: "GenerativeAIFile",
         workspace: Optional[Workspace] = None,
         settings_override: Optional[dict[str, Any]] = None,
     ) -> None:
@@ -854,7 +854,7 @@ class ZaiGenerativeAIModelType(GenerativeAIModelType):
         return ZaiChatModel(
             model_name,
             provider=ZaiChatProvider(api_key=api_key),
-            # Preserved thinking needs all past reasoning back; Kuma compacts history.
+            # Preserved thinking needs all past reasoning back; agents compact history.
             settings=ZaiModelSettings(zai_clear_thinking=True),
         )
 

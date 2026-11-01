@@ -545,7 +545,7 @@ def test_dashboard_export_import_does_not_carry_the_sharing_state(data_fixture):
     serialized = DashboardApplicationType().export_serialized(dashboard, config)
     serialized = json.loads(json.dumps(serialized))
 
-    for key in ("public", "slug", "public_password", "show_logo"):
+    for key in ("public", "slug", "public_password"):
         assert key not in serialized
 
     imported = DashboardApplicationType().import_serialized(

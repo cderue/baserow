@@ -5,7 +5,6 @@ from django.db.models import Q
 
 from .constants import (
     AI_PROVIDER_FEATURE_AI_AGENT,
-    AI_PROVIDER_FEATURE_AI_FIELDS,
     AI_PROVIDER_TYPES,
     PROVIDER_ENVIRONMENT_SETTINGS,
 )
@@ -19,10 +18,7 @@ from .provider_types import (
 SKIPPED_INCOMPLETE = "incomplete"
 SKIPPED_EXISTING = "existing"
 
-IMPORTED_MODEL_FEATURE_TYPES = [
-    AI_PROVIDER_FEATURE_AI_FIELDS,
-    AI_PROVIDER_FEATURE_AI_AGENT,
-]
+IMPORTED_MODEL_FEATURE_TYPES = [AI_PROVIDER_FEATURE_AI_AGENT]
 
 
 @dataclass(frozen=True, slots=True)

@@ -14,9 +14,6 @@ metadata:
   "PUBLIC_WEB_FRONTEND_URL" (printf "https://%s" .Values.global.baserow.domain)
   "PRIVATE_BACKEND_URL" (printf "http://%s" (include "baserow.fullname" (index .Subcharts "baserow-backend-wsgi")))
 }}
-{{- if .Values.global.baserow.assistantLLMModel }}
-{{- $_ := set $data "BASEROW_ENTERPRISE_ASSISTANT_LLM_MODEL" .Values.global.baserow.assistantLLMModel }}
-{{- end }}
 data:
 {{- range $key, $val := mergeOverwrite $data (.Values.sharedConfigMap | default dict) }}
   {{ $key }}: {{ $val | quote }}

@@ -434,7 +434,7 @@ def test_ai_agent_provider_import_preserves_existing_services(
     )
 
     # Removing AI Agent eligibility prevents subsequent dispatch.
-    AIProviderHandler.update_model(model, feature_types=["ai_fields"])
+    AIProviderHandler.update_model(model, feature_types=["removed_feature"])
     with (
         mock_ai_prompt() as prompt,
         pytest.raises(
@@ -1394,7 +1394,7 @@ def test_prepare_values_rejects_model_restricted_to_other_features(data_fixture)
     AIProviderModel.objects.create(
         provider_config=provider,
         model_identifier="fields-only-model",
-        feature_types=["ai_fields"],
+        feature_types=["removed_feature"],
     )
     integration = IntegrationService().create_integration(
         user, AIIntegrationType(), application=application, ai_settings={}
@@ -1518,7 +1518,7 @@ def test_dispatch_rejects_model_restricted_to_other_features(data_fixture):
     AIProviderModel.objects.create(
         provider_config=provider,
         model_identifier="fields-only-model",
-        feature_types=["ai_fields"],
+        feature_types=["removed_feature"],
     )
     integration = IntegrationService().create_integration(
         user, AIIntegrationType(), application=application, ai_settings={}
@@ -1640,7 +1640,7 @@ def test_dispatch_partial_override_respects_feature_eligibility(data_fixture):
     AIProviderModel.objects.create(
         provider_config=provider,
         model_identifier="fields-only-model",
-        feature_types=["ai_fields"],
+        feature_types=["removed_feature"],
     )
     integration = IntegrationService().create_integration(
         user,
@@ -1772,7 +1772,7 @@ def test_connection_only_override_inherits_available_models(
         AIProviderModel.objects.create(
             provider_config=provider,
             model_identifier="fields-only-model",
-            feature_types=["ai_fields"],
+            feature_types=["removed_feature"],
         )
 
     integration = IntegrationService().create_integration(

@@ -41,10 +41,9 @@ export const setToken = (
 
 /**
  * Sets a session cookie in the browser to store the user's signed session payload upon
- * login. This cookie facilitates backend authentication for GET requests, such as
- * downloading files with the secure_file_serve feature, when the Authorization header
- * is unavailable. The payload includes a token hash to invalidate the cookie upon
- * logout.
+ * login. This cookie provides backend authentication for GET requests when the
+ * Authorization header is unavailable. The payload includes a token hash to
+ * invalidate the cookie upon logout.
  *
  * @param {*} app: the nuxt app instance
  * @param {*} signedUserSession: the signed user session payload to be stored in the
@@ -65,9 +64,7 @@ export const setUserSessionCookie = (
     const secure = isSecureURL(config.public.publicWebFrontendUrl)
 
     // To make the cookie available to all subdomains, set the domain to the top-level
-    // domain. This is necessary for the secure_file_serve feature to work across
-    // subdomains, as when the backend serves files from a different subdomain from the
-    // frontend. The top-level domain is extracted from the backend URL.
+    // domain extracted from the backend URL.
     // NOTE: For security reasons, it's not possible to set a cookie for a different
     // domain, so this won't work if the frontend and backend are on different domains.
     const topLevelDomain = tldjs.getDomain(config.public.publicBackendUrl)

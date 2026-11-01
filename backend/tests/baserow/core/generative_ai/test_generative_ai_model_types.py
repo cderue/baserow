@@ -1,3 +1,4 @@
+from types import SimpleNamespace
 from typing import Any
 from unittest.mock import MagicMock, patch
 
@@ -25,20 +26,20 @@ from baserow.core.generative_ai.generative_ai_model_types import (
 from baserow.core.generative_ai.registries import generative_ai_model_type_registry
 from baserow.core.generative_ai.xai import XAI_BASE_URL, XaiChatProvider
 from baserow.core.generative_ai.zai import ZaiChatProvider
-from baserow_premium.fields.ai_file import AIFile
 
 
 def _make_ai_file(
     name: str, size: int, mime_type: str = "text/plain", content_bytes: bytes = b""
-) -> AIFile:
-    ai_file = AIFile(
+):
+    return SimpleNamespace(
         name=name,
         original_name=name,
         size=size,
         mime_type=mime_type,
+        content=None,
+        provider_file_id=None,
+        read_content=lambda: content_bytes,
     )
-    ai_file.read_content = lambda: content_bytes  # type: ignore[assignment]
-    return ai_file
 
 
 def test_google_and_groq_model_types_are_registered():
@@ -518,7 +519,7 @@ def test_groq_constructs_native_model_with_configured_credentials():
     assert model.profile.get("supports_tools") is not False
 
 
-def test_google_and_groq_do_not_fall_back_to_legacy_kuma_credentials(monkeypatch):
+def test_google_and_groq_do_not_fall_back_to_provider_environment_credentials(monkeypatch):
     monkeypatch.setenv("GOOGLE_API_KEY", "legacy-google-key")
     monkeypatch.setenv("GROQ_API_KEY", "legacy-groq-key")
 

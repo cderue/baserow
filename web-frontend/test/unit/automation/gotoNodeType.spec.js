@@ -73,7 +73,7 @@ describe('CoreGotoActionNodeType', () => {
 
   describe('getHistoryLabel', () => {
     // An app stub whose node registry holds `registeredNodeTypes`, mapping each
-    // registered node type to the generic name it falls back to. The enterprise
+    // registered node type to the generic name it falls back to. An optional
     // `code` node type is deliberately absent, see the last test.
     const makeApp = ({
       registeredNodeTypes = { local_baserow_get_row: 'Get a single row' },
@@ -154,9 +154,8 @@ describe('CoreGotoActionNodeType', () => {
     })
 
     test('omits the destination when its node type is not registered', () => {
-      // The enterprise `code` node type is only registered when the code runner
-      // is configured, so a history entry recorded while it was enabled can
-      // outlive its registration and reference a type this build doesn't have.
+      // An optional `code` node type may be unregistered while a history entry
+      // still references it.
       const nodeType = new CoreGotoActionNodeType({ app: makeApp() })
       expect(
         nodeType.getHistoryLabel({

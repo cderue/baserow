@@ -1,4 +1,4 @@
-"""Tests for the workflow read tools shared by MCP and Kuma."""
+"""Tests for the workflow read tools shared by MCP and AI Agent."""
 
 import pytest
 

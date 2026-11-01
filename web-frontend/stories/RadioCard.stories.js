@@ -51,9 +51,6 @@ export const Group = {
         <RadioCard v-model="selected" value="pro">
           <strong>Pro</strong> - $10/month
         </RadioCard>
-        <RadioCard v-model="selected" value="enterprise" disabled>
-          <strong>Enterprise</strong> - Contact us (Unavailable)
-        </RadioCard>
       </div>
     `,
   }),

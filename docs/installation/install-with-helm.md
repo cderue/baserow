@@ -172,27 +172,12 @@ helm rollback my-baserow -n baserow
 helm rollback my-baserow 1 -n baserow
 ```
 
-### Configuring AI Features
+### Configuring AI Providers
 
-Baserow supports multiple providers for AI Fields, AI Agent actions, formula
-suggestions, and the AI assistant. Configure provider connections and models under
+Baserow supports multiple providers for AI Agent actions. Configure provider connections and models under
 **Admin tools → AI providers** or a workspace's **Settings → AI providers**; see
 [where to configure them](https://baserow.io/docs/installation%2Fai-providers#where-to-configure-them).
-Choose each model's feature availability and run **Test model**. Kuma also requires
-a selected model under **AI features**; see [AI assistant setup](ai-assistant.md).
-
-#### Enable AI Assistant with Embeddings
-
-Configure and select a tested Kuma model in Baserow. To add knowledge-base lookups,
-enable the embeddings service in your `config.yaml`:
-
-```yaml
-baserow-embeddings:
-  enabled: true
-```
-
-Embeddings support documentation lookup; they are not required to configure providers
-or generate AI Field values.
+Choose which AI Agent actions may use each model, then run **Test model**.
 
 #### Migrate Existing Environment Configuration
 
@@ -205,14 +190,6 @@ The migrate job must carry the same AI variables as the backend. Otherwise they 
 not imported, and the backend keeps reading them. It shares the backend config map
 and secret by default.
 
-The Helm `global.baserow.assistantLLMModel` setting is also deprecated, but Kuma's
-environment model and provider-native credentials are not imported. Kuma keeps using
-them until you make a tested model available to Kuma and select it under
-**AI features**. Keep a verified fallback for native providers or authentication
-without an equivalent database configuration, such as Vertex AI, or Bedrock through
-the pod's IAM role. Their SDK credentials remain supported; see the
-[fallback presets](https://baserow.io/docs/installation%2Fai-assistant#3-legacy-fallback-provider-presets).
-Retain legacy values needed by remaining consumers and the rollback window.
 
 See the [official Helm chart documentation](https://github.com/baserow/baserow/blob/develop/deploy/helm/baserow/README.md) for detailed AI configuration options.
 

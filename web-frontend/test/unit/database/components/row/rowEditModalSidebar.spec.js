@@ -7,7 +7,7 @@ import {
 } from '@baserow/modules/database/utils/rowEditModalSidebar'
 import { installLocalStorageMock } from '@baserow/test/helpers/localStorage'
 
-// Minimal fake sidebar types so the test does not depend on premium comments.
+// Minimal fake sidebar types so the test does not depend on plugin extensions.
 // Explicit order mirrors the real types (comments 0, history 10); the database
 // plugin already registers a real `history` type, which register() overwrites.
 const makeType = (

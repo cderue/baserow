@@ -388,44 +388,6 @@ app.$registry.register(
 
 And that's it, you have a fully functionnal frontend permission manager.
 
-## 👑 Admins can't be locked out (enterprise RBAC)
-
-The enterprise `role` permission manager resolves an actor's roles per scope,
-from the workspace down to the application, table and view, and normally the
-most specific scope wins. One rule takes precedence over that, applied by
-`RoleAssignmentHandler.apply_admin_precedence` when the per scope list is built,
-so every consumer of the list sees the same result: the admin role an actor holds
-directly, as their stored workspace role or as a role assignment of their own,
-holds on that scope and on everything inside it. Any lower role on a descendant
-scope, directly assigned or through a team, has no effect. An admin of the
-workspace is therefore an admin everywhere in it. To restrict them, lower the
-admin role itself.
-
-Roles held through a team don't get that treatment. A team's admin role on a
-database applies on the database like any other team role, and a role on a table
-inside still wins there. On one scope the actor's own role keeps winning over the
-roles of their teams, whatever they are. A team's admin role on the workspace
-applies to the members whose stored role is "No role", as any team role does:
-they resolve to admin on the workspace, but without the precedence, so a lower
-role on a scope inside still wins for them.
-
-Existing role assignments that the rule makes inert are kept as they are; the
-rule applies the moment the code runs, without a data migration. The `role`
-permission manager also returns early for admins of the workspace when building the
-permissions object and the queryset filters: both come from the admin role alone,
-with no exceptions. Permission checks still walk the scope list, since that walk is
-what denies a context that doesn't belong to the workspace of the check.
-
-Nobody can change their own role through the API, neither on the workspace
-(`ERROR_CANNOT_CHANGE_YOUR_OWN_ROLE` on the workspace user endpoint and
-`ERROR_CANT_ASSIGN_ROLE_TO_SELF` on the role assignment endpoints) nor on an
-application, table or view. Another admin has to do it, and the last admin check
-still applies to them.
-
-The reasoning is recorded in [ADR 010](../decisions/010-admin-role-precedence.md),
-and [its role matrix](../decisions/010-role-matrix-after.md) lists how every
-combination of roles resolves before and after the rule.
-
 ## 📝 Conclusion
 
 If you want to create a new way to validate Permissions, you'll have to:
@@ -443,7 +405,7 @@ If you want to create a new way to validate Permissions, you'll have to:
 
 The Permission system has been designed with these constraints in mind:
 
-- Must be extensible (to support RBAC from enterprise folder)
+- Must be extensible for additional permission managers
 - Must be as much compatible with the previous system (The `.has_user` method)
   as possible
 - Must play well with realtime

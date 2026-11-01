@@ -21,11 +21,13 @@ or state-compatibility references as well when their triggers apply.
   not add type-specific branches or `hasattr` probes to generic handlers.
 - Keep one bulk-capable implementation. Single-item helpers should delegate rather
   than become a second behavior path.
-- Keep the dependency direction one-way: core should not import `contrib`, premium, or
-  enterprise at all, not even under `TYPE_CHECKING`, but it's allowed to name the implementation in a comment if adds clarity. Premium should not import enterprise. One contrib should import another only when strictly needed; prefer lifting the shared piece into core. Develop still breaks this, so report only what a diff adds or widens.
+- Keep the dependency direction one-way: core should not import contrib or optional
+  plugins, not even under `TYPE_CHECKING`. One contrib should import another only
+  when strictly needed; prefer lifting the shared piece into core. Report only what a
+  diff adds or widens.
 - Keep serializers in `serializers.py`, actions in `actions.py`, registries in
   `registries.py`, type subclasses in `*_types.py`, and domain work in `handler.py`.
-  Premium and enterprise settings stay in their own config packages.
+  Optional plugin settings stay in their own config packages.
 
 ## Contracts and Django behavior
 

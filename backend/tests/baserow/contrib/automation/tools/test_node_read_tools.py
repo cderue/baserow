@@ -1,4 +1,4 @@
-"""Tests for the node read tools shared by MCP and Kuma."""
+"""Tests for the node read tools shared by MCP and AI Agent."""
 
 from uuid import uuid4
 

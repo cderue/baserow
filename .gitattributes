@@ -9,4 +9,3 @@
 *.scss text eol=lf
 
 # Machine-captured eval baseline snapshot: collapsed in PR review
-enterprise/backend/src/baserow_enterprise/assistant/evals/baseline.json linguist-generated=true

@@ -28,6 +28,11 @@ class PublicDashboardSerializer(serializers.ModelSerializer):
             "show_logo": {"read_only": True},
         }
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data["show_logo"] = True
+        return data
+
 
 class PublicDashboardDataSourceSerializer(PublicServiceSerializer):
     """
@@ -141,8 +146,7 @@ class PublicDashboardAuthInfoSerializer(serializers.Serializer):
     """
 
     show_logo = serializers.BooleanField(
-        help_text="Indicates whether the Baserow logo must be shown on the "
-        "password page of the publicly shared dashboard."
+        help_text="The Baserow logo is always shown on the password page."
     )
 
 

@@ -1,4 +1,4 @@
-"""Tests for the table read tools shared by MCP and Kuma."""
+"""Tests for the table read tools shared by MCP and AI Agent."""
 
 import json
 
@@ -152,7 +152,7 @@ def linked_tables(data_fixture):
 
 
 @pytest.mark.django_db
-def test_get_table_schema_has_kuma_extras_and_the_old_keys(linked_tables):
+def test_get_table_schema_has_standard_fields_and_the_old_keys(linked_tables):
     ctx, customers, orders, status = linked_tables
 
     [schema] = get_table_schema(ctx, [orders.id])
@@ -244,8 +244,8 @@ def test_read_tools_over_mcp_keep_their_arguments_and_shape(data_fixture):
         "full_schema",
     }
     for name in ("list_tables", "get_table_schema"):
-        for kuma_only in ("ask_user", "navigate", "get_tables_schema", "sample"):
-            assert kuma_only not in tools[name].description
+        for agent_only in ("ask_user", "navigate", "get_tables_schema", "sample"):
+            assert agent_only not in tools[name].description
     [data] = json.loads(schema.content[0].text)
     assert (data["id"], data["name"], data["database_id"]) == (
         table.id,

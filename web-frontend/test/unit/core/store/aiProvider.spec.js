@@ -21,10 +21,10 @@ describe('AI provider store', () => {
       fetchAll: vi.fn().mockResolvedValue({ data: [{ id: 1 }] }),
       fetchTypes: vi.fn().mockResolvedValue({ data: [{ type: 'openai' }] }),
       fetchFeatureSettings: vi.fn().mockResolvedValue({
-        data: [{ feature_type: 'kuma', mode: 'disabled' }],
+        data: [{ feature_type: 'ai_agent', mode: 'disabled' }],
       }),
       updateFeatureSetting: vi.fn().mockResolvedValue({
-        data: { feature_type: 'kuma', mode: 'model', model: { id: 2 } },
+        data: { feature_type: 'ai_agent', mode: 'model', model: { id: 2 } },
       }),
       discoverModels: vi.fn().mockResolvedValue({
         data: { models: ['gpt-5.6'], supported: true },
@@ -35,7 +35,7 @@ describe('AI provider store', () => {
       fetchModelUsage: vi.fn().mockResolvedValue({
         data: {
           usage: [
-            { feature_type: 'ai_fields', count: 3 },
+            { feature_type: 'ai_agent', count: 3 },
             { feature_type: 'ai_agent', count: 0 },
           ],
         },
@@ -49,7 +49,7 @@ describe('AI provider store', () => {
               error: '',
               tested_at: '2026-07-21T12:00:00Z',
               feature_results: [
-                { feature_type: 'ai_fields', status: 'success', error: '' },
+                { feature_type: 'ai_agent', status: 'success', error: '' },
               ],
             },
           ],
@@ -83,7 +83,7 @@ describe('AI provider store', () => {
     ])
     expect(committed).toContainEqual([
       'SET_FEATURE_SETTINGS',
-      [{ feature_type: 'kuma', mode: 'disabled' }],
+      [{ feature_type: 'ai_agent', mode: 'disabled' }],
     ])
     expect(committed.at(-1)).toEqual(['SET_LOADING', false])
   })
@@ -187,14 +187,14 @@ describe('AI provider store', () => {
     storeState.loaded = true
     storeState.providers = [{ id: 1 }]
     storeState.providerTypes = [{ type: 'openai' }]
-    storeState.featureSettings = [{ feature_type: 'kuma' }]
+    storeState.featureSettings = [{ feature_type: 'ai_agent' }]
 
     expect(getters.getAll(storeState)(42)).toEqual([{ id: 1 }])
     expect(getters.getTypes(storeState)(42)).toEqual([{ type: 'openai' }])
     expect(getters.hasLoaded(storeState)).toBe(true)
     expect(getters.getWorkspaceId(storeState)).toBe(42)
     expect(getters.getFeatureSettings(storeState)(42)).toEqual([
-      { feature_type: 'kuma' },
+      { feature_type: 'ai_agent' },
     ])
     expect(getters.isLoaded(storeState)(42)).toBe(true)
 
@@ -242,7 +242,7 @@ describe('AI provider store', () => {
       {
         workspaceId: 42,
         providers: [{ id: 42 }],
-        featureSettings: [{ feature_type: 'kuma', mode: 'model' }],
+        featureSettings: [{ feature_type: 'ai_agent', mode: 'model' }],
       }
     )
     expect(commit).toHaveBeenCalledTimes(4)
@@ -250,7 +250,7 @@ describe('AI provider store', () => {
     expect(commit).toHaveBeenCalledWith('BUMP_FEATURE_SETTINGS_REVISION')
     expect(commit).toHaveBeenCalledWith('SET_PROVIDERS', [{ id: 42 }])
     expect(commit).toHaveBeenCalledWith('SET_FEATURE_SETTINGS', [
-      { feature_type: 'kuma', mode: 'model' },
+      { feature_type: 'ai_agent', mode: 'model' },
     ])
   })
 
@@ -259,7 +259,7 @@ describe('AI provider store', () => {
     storeState.loaded = true
     storeState.workspaceId = 42
     storeState.providers = [{ id: 'initial' }]
-    storeState.featureSettings = [{ feature_type: 'kuma', mode: 'disabled' }]
+    storeState.featureSettings = [{ feature_type: 'ai_agent', mode: 'disabled' }]
     const commit = (type, payload) => mutations[type](storeState, payload)
     let resolveProviders
     let resolveFeatureSettings
@@ -283,18 +283,18 @@ describe('AI provider store', () => {
       {
         workspaceId: 42,
         providers: [{ id: 'realtime' }],
-        featureSettings: [{ feature_type: 'kuma', mode: 'model' }],
+        featureSettings: [{ feature_type: 'ai_agent', mode: 'model' }],
       }
     )
     resolveProviders({ data: [{ id: 'stale-http' }] })
     resolveFeatureSettings({
-      data: [{ feature_type: 'kuma', mode: 'legacy' }],
+      data: [{ feature_type: 'ai_agent', mode: 'legacy' }],
     })
     await staleRefresh
 
     expect(storeState.providers).toEqual([{ id: 'realtime' }])
     expect(storeState.featureSettings).toEqual([
-      { feature_type: 'kuma', mode: 'model' },
+      { feature_type: 'ai_agent', mode: 'model' },
     ])
   })
 
@@ -326,13 +326,13 @@ describe('AI provider store', () => {
     )
     resolveProviders({ data: [{ id: 'stale-http' }] })
     resolveFeatureSettings({
-      data: [{ feature_type: 'kuma', mode: 'legacy' }],
+      data: [{ feature_type: 'ai_agent', mode: 'legacy' }],
     })
     await initialFetch
 
     expect(storeState.providers).toEqual([{ id: 'realtime' }])
     expect(storeState.featureSettings).toEqual([
-      { feature_type: 'kuma', mode: 'legacy' },
+      { feature_type: 'ai_agent', mode: 'legacy' },
     ])
   })
 
@@ -473,13 +473,13 @@ describe('AI provider store', () => {
       { $client: {} },
       { commit, dispatch, state: storeState },
       {
-        featureType: 'kuma',
+        featureType: 'ai_agent',
         values: { mode: 'model', model_id: 2 },
         workspaceId: 42,
       }
     )
 
-    expect(service.updateFeatureSetting).toHaveBeenCalledWith('kuma', {
+    expect(service.updateFeatureSetting).toHaveBeenCalledWith('ai_agent', {
       mode: 'model',
       model_id: 2,
     })
@@ -501,7 +501,7 @@ describe('AI provider store', () => {
     expect(service.fetchModelUsage).toHaveBeenCalledWith(2)
     expect(result).toEqual({
       usage: [
-        { featureType: 'ai_fields', count: 3 },
+        { featureType: 'ai_agent', count: 3 },
         { featureType: 'ai_agent', count: 0 },
       ],
     })

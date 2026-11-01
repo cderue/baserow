@@ -156,33 +156,33 @@ describe('Auth store', () => {
 
   test('can update a users additional data', () => {
     store.dispatch('auth/forceUpdateUserData', {
-      active_licenses: {
-        per_workspace: { workspaceId: { test: true } },
+      plugin_data: {
+        custom_extension: { per_workspace: { workspaceId: { test: true } } },
       },
     })
     const additionalData = store.getters['auth/getAdditionalUserData']
     expect(JSON.parse(JSON.stringify(additionalData))).toStrictEqual({
-      active_licenses: {
-        per_workspace: { workspaceId: { test: true } },
+      plugin_data: {
+        custom_extension: { per_workspace: { workspaceId: { test: true } } },
       },
     })
   })
 
   test('updating a users additional data merges with existing values', () => {
     store.dispatch('auth/forceUpdateUserData', {
-      active_licenses: {
-        per_workspace: { workspaceId: { test: true } },
+      plugin_data: {
+        custom_extension: { per_workspace: { test: true } },
       },
     })
     store.dispatch('auth/forceUpdateUserData', {
-      active_licenses: {
-        per_workspace: { workspaceId: { otherKey: true } },
+      plugin_data: {
+        custom_extension: { per_workspace: { otherKey: true } },
       },
     })
     const additionalData = store.getters['auth/getAdditionalUserData']
     expect(JSON.parse(JSON.stringify(additionalData))).toStrictEqual({
-      active_licenses: {
-        per_workspace: { workspaceId: { test: true, otherKey: true } },
+      plugin_data: {
+        custom_extension: { per_workspace: { test: true, otherKey: true } },
       },
     })
   })
@@ -201,18 +201,14 @@ describe('Auth store', () => {
   })
   test('updating a users additional data can set to false', () => {
     store.dispatch('auth/forceUpdateUserData', {
-      active_licenses: { instance_wide: { premium: true } },
+      feature_flags: { instance_wide: { enabled: true } },
     })
     store.dispatch('auth/forceUpdateUserData', {
-      active_licenses: {
-        instance_wide: { premium: false },
-      },
+      feature_flags: { instance_wide: { enabled: false } },
     })
     const additionalData = store.getters['auth/getAdditionalUserData']
     expect(JSON.parse(JSON.stringify(additionalData))).toStrictEqual({
-      active_licenses: {
-        instance_wide: { premium: false },
-      },
+      feature_flags: { instance_wide: { enabled: false } },
     })
   })
 

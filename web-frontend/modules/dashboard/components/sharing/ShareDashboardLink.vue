@@ -220,8 +220,7 @@ const updateDashboard = async (values) => {
 }
 
 /**
- * Applies values that were already saved by another endpoint, like the premium
- * dashboard attributes, to the dashboard in the store.
+ * Applies values already saved by another endpoint to the dashboard in the store.
  */
 const forceUpdateDashboard = (data) => {
   $store.dispatch('application/forceUpdate', {

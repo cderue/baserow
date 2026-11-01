@@ -125,17 +125,16 @@ baserow-backend-wsgi:
       onDemandAsk: "http://my-baserow-baserow-backend-wsgi/api/builder/domains/ask-public-domain-exists/"
 ```
 
-## AI and Embeddings Configuration
+## AI Provider Configuration
 
-Baserow supports multiple AI providers for generative AI features and the AI assistant. The embeddings service powers semantic search for the AI assistant's documentation lookup feature. For more documentation check the [Baserow AI documentation](/docs/installation/ai-assistant.md).
+Baserow supports multiple AI providers for AI Agent actions. For more information, see
+the [AI providers guide](/docs/installation/ai-providers.md).
 
 ### Configure providers and models
 
 After deployment, configure shared connections under **Admin tools > AI providers**,
 or workspace connections under the workspace's **Settings > AI providers**. Add
-models, select their available features, and run **Test model**. Choose Kuma's
-default under **AI features**; AI Fields and AI Agent actions keep their own model
-selections.
+models, select their availability for AI Agent actions, and run **Test model**.
 
 The provider connection/model environment variables are **deprecated**. Upgrading to
 Baserow 2.4 imports them once into **Admin tools > AI providers**, and after that
@@ -143,22 +142,6 @@ Baserow no longer reads them. See
 [Upgrading to Baserow 2.4](/docs/installation/ai-providers.md#upgrading-to-baserow-24).
 The migrate job must carry the same AI variables as the backend, which it does by
 default through the shared backend config map and secret.
-`global.baserow.assistantLLMModel` is also deprecated but is not imported: Kuma keeps
-using it until you make a model available to Kuma and select it under
-**AI features**. Keep existing settings until the imported configuration is verified,
-including the rollback window. Vertex AI, and Bedrock through the pod's IAM role,
-have no equivalent in AI providers; keep their environment configuration for Kuma, as
-described in the [AI assistant guide](/docs/installation/ai-assistant.md).
-
-### Enable Embeddings Service
-
-Enable the embeddings service for the assistant's documentation lookup feature.
-This setting remains supported and is separate from provider/model configuration.
-
-```yaml
-baserow-embeddings:
-  enabled: true
-```
 
 ## Different Cloud Providers
 
@@ -285,7 +268,6 @@ caddy:
 | `global.baserow.domain`                                            | Configure the domain for the frontend application.                                      | `cluster.local`         |
 | `global.baserow.backendDomain`                                     | Configure the domain for the backend application. Set it to the same value as global.baserow.domain to serve the API under that domain's /api/ path instead. | `api.cluster.local`     |
 | `global.baserow.objectsDomain`                                     | Configure the domain for the external facing minio api.                                 | `objects.cluster.local` |
-| `global.baserow.assistantLLMModel`                                 | Deprecated. Select the Kuma model under Admin tools > AI providers > AI features. Retained as an environment fallback; explicit disables prevent fallback. | `""`                    |
 | `global.baserow.applicationBuilderDomains`                         | Extra domains routed to the frontend, for Application Builder apps served on their own domain. Wildcards such as "*.apps.mydomain.com" are supported. Only needed when ingress.catchAll.enabled is false. | `[]`                    |
 | `global.baserow.containerSecurityContext.enabled`                  | Enabled containers' Security Context                                                    | `false`                 |
 | `global.baserow.containerSecurityContext.seLinuxOptions`           | Set SELinux options in container                                                        | `{}`                    |
@@ -482,7 +464,7 @@ caddy:
 | `baserow-celery-export-worker.args`                          | Arguments passed to the Celery export worker.                                           | `["celery-exportworker"]` |
 | `baserow-celery-export-worker.replicaCount`                  | Number of replicas for the Celery export worker.                                        | `1`                       |
 | `baserow-celery-export-worker.service.create`                | Set to false to disable creating a service for the Celery beat worker.                  | `false`                   |
-| `baserow-celery-export-worker.terminationGracePeriodSeconds` | Seconds the export worker gets to finish running tasks, such as Kuma runs, on shutdown. | `120`                     |
+| `baserow-celery-export-worker.terminationGracePeriodSeconds` | Seconds the export worker gets to finish running tasks, such as long-running agent actions, on shutdown. | `120`                     |
 
 ### Baserow Celery worker Configuration
 
@@ -513,30 +495,6 @@ caddy:
 | `baserow-celery-flower.image.repository` | Docker image repository for the Celery Flower monitoring tool. | `backend`           |
 | `baserow-celery-flower.args`             | Arguments passed to the Celery Flower monitoring tool.         | `["celery-flower"]` |
 | `baserow-celery-flower.replicaCount`     | Number of replicas for the Celery Flower monitoring tool.      | `1`                 |
-
-### Baserow Embeddings Configuration
-
-| Name                                                            | Description                                                     | Value                      |
-| --------------------------------------------------------------- | --------------------------------------------------------------- | -------------------------- |
-| `baserow-embeddings.enabled`                                    | Set to true to enable the Baserow Embeddings service.           | `false`                    |
-| `baserow-embeddings.image.repository`                           | Docker image repository for the Embeddings service.             | `embeddings`               |
-| `baserow-embeddings.image.tag`                                  | Docker image tag for the Embeddings service, which is versioned separately from Baserow. | `1.1.0`                    |
-| `baserow-embeddings.workingDir`                                 | Working directory for the container, empty to use the image's own.                       | `""`                       |
-| `baserow-embeddings.resources`                                  | Resource requests and limits for the Embeddings service.        |                            |
-| `baserow-embeddings.autoscaling.enabled`                        | Enable autoscaling for the Embeddings service.                  | `false`                    |
-| `baserow-embeddings.autoscaling.minReplicas`                    | Minimum number of replicas for autoscaling.                     | `1`                        |
-| `baserow-embeddings.autoscaling.maxReplicas`                    | Maximum number of replicas for autoscaling.                     | `3`                        |
-| `baserow-embeddings.autoscaling.targetCPUUtilizationPercentage` | Target CPU utilization percentage for autoscaling.              | `80`                       |
-| `baserow-embeddings.service.port`                               | Service port for the Embeddings service.                        | `80`                       |
-| `baserow-embeddings.service.targetPort`                         | Target port for the Embeddings service.                         | `80`                       |
-| `baserow-embeddings.readinessProbe.initialDelaySeconds`         | Initial delay for readiness probe.                              | `10`                       |
-| `baserow-embeddings.readinessProbe.periodSeconds`               | Period for readiness probe.                                     | `10`                       |
-| `baserow-embeddings.readinessProbe.timeoutSeconds`              | Timeout for readiness probe.                                    | `5`                        |
-| `baserow-embeddings.livenessProbe.initialDelaySeconds`          | Initial delay for liveness probe.                               | `10`                       |
-| `baserow-embeddings.livenessProbe.periodSeconds`                | Period for liveness probe.                                      | `10`                       |
-| `baserow-embeddings.livenessProbe.timeoutSeconds`               | Timeout for liveness probe.                                     | `5`                        |
-| `baserow-embeddings.pdb.create`                                 | Enable/disable a Pod Disruption Budget creation.                | `false`                    |
-| `baserow-embeddings.pdb.minAvailable`                           | Minimum number/percentage of pods that should remain scheduled. | `75%`                      |
 
 ### Ingress Configuration
 

@@ -326,14 +326,14 @@ describe('AIProviderItem', () => {
               id: 2,
               model_identifier: 'gpt-5.6',
               is_enabled: true,
-              feature_types: ['ai_fields', 'kuma'],
+              feature_types: ['ai_agent'],
               last_test_status: 'failure',
               last_test_error:
                 'The model did not call the compatibility test tool.',
               last_test_feature_results: [
-                { feature_type: 'ai_fields', status: 'success', error: '' },
+                { feature_type: 'ai_agent', status: 'success', error: '' },
                 {
-                  feature_type: 'kuma',
+                  feature_type: 'ai_agent',
                   status: 'failure',
                   error: 'The model did not call the compatibility test tool.',
                 },

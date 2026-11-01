@@ -28,10 +28,10 @@ describe('PublicDashboardAuth page', () => {
     await testApp.afterEach()
   })
 
-  async function mountPage(query = '', { showLogo = true } = {}) {
+  async function mountPage(query = '') {
     testApp.mock
       .onGet(`/dashboard/public/${SLUG}/auth/`)
-      .reply(200, { show_logo: showLogo })
+      .reply(200, { show_logo: true })
     const page = await testApp.mount(PublicDashboardAuth, {
       route: `/public/dashboard/${SLUG}/auth${query}`,
     })
@@ -100,16 +100,10 @@ describe('PublicDashboardAuth page', () => {
     expect(await getToken(nuxtApp, SLUG)).toBeFalsy()
   })
 
-  test('shows the Baserow logo by default', async () => {
+  test('always shows the Baserow logo', async () => {
     const { page } = await mountPage()
 
     expect(page.find('.public-dashboard-auth__footer').exists()).toBe(true)
-  })
-
-  test('hides the Baserow logo when the owner hid it', async () => {
-    const { page } = await mountPage('', { showLogo: false })
-
-    expect(page.find('.public-dashboard-auth__footer').exists()).toBe(false)
   })
 
   test('shows the not found page for an unknown or private dashboard', async () => {

@@ -5,10 +5,10 @@ inside the HTTP request. The browser only follows the output. Refreshing the pag
 closing the tab or losing the connection does not stop the answer.
 
 Use it for a chat-like feature where a user sends a message and watches a long,
-streamed answer, such as Kuma. For a quick request, a normal API view is simpler.
+streamed answer, such as an AI Agent. For a quick request, a normal API view is simpler.
 
 The engine lives in `baserow.core.chat_runs` (backend) and the core `chatRuns`
-module (frontend). It does not need enterprise. See
+module (frontend). See
 [ADR 010](../decisions/010-background-ai-chat-runs.md) for why it works this way.
 
 ## The pieces

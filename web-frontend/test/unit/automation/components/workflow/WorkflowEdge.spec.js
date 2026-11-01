@@ -7,8 +7,8 @@ import WorkflowEdge from '@baserow/modules/automation/components/workflow/Workfl
 const storeHolder = vi.hoisted(() => ({ store: null }))
 // Override only useStore; keep the real vuex exports. Replacing the whole module
 // would strip mapGetters/mapActions/etc., and since the mock applies for the
-// entire worker, any sibling module loaded alongside this spec (e.g. enterprise
-// components pulled in during the Nuxt test-app bootstrap) would crash with
+// entire worker, any sibling module loaded alongside this spec during Nuxt's
+// test-app bootstrap would crash with
 // "No mapGetters export is defined on the vuex mock".
 vi.mock('vuex', async (importOriginal) => ({
   ...(await importOriginal()),

@@ -23,7 +23,6 @@
 ## @param global.baserow.domain Configure the domain for the frontend application.
 ## @param global.baserow.backendDomain Configure the domain for the backend application. Set it to the same value as global.baserow.domain to serve the API under that domain's /api/ path instead.
 ## @param global.baserow.objectsDomain Configure the domain for the external facing minio api.
-## @param global.baserow.assistantLLMModel Deprecated. Select the Kuma model under Admin tools > AI providers > AI features. Retained as an environment fallback; explicit disables prevent fallback.
 ## @param global.baserow.applicationBuilderDomains Extra domains routed to the frontend, for Application Builder apps served on their own domain. Wildcards such as "*.apps.mydomain.com" are supported. Only needed when ingress.catchAll.enabled is false.
 ## @param global.baserow.containerSecurityContext.enabled Enabled containers' Security Context
 ## @param global.baserow.containerSecurityContext.seLinuxOptions [object,nullable] Set SELinux options in container
@@ -69,7 +68,6 @@ global:
     ##   - "*.apps.mydomain.com"
     ##
     applicationBuilderDomains: []
-    assistantLLMModel: ""
 
     securityContext:
       enabled: false
@@ -585,7 +583,7 @@ baserow-celery-beat-worker:
 ## @param baserow-celery-export-worker.args Arguments passed to the Celery export worker.
 ## @param baserow-celery-export-worker.replicaCount Number of replicas for the Celery export worker.
 ## @param baserow-celery-export-worker.service.create Set to false to disable creating a service for the Celery beat worker.
-## @param baserow-celery-export-worker.terminationGracePeriodSeconds Seconds the export worker gets to finish running tasks, such as Kuma runs, on shutdown.
+## @param baserow-celery-export-worker.terminationGracePeriodSeconds Seconds the export worker gets to finish running tasks, such as long-running agent actions, on shutdown.
 baserow-celery-export-worker:
   image:
     repository: backend
@@ -665,69 +663,6 @@ baserow-celery-flower:
   args:
     - celery-flower
   replicaCount: 1
-
-## Configuration for the Baserow Embeddings service
-## @param baserow-embeddings.enabled Set to true to enable the Baserow Embeddings service.
-## @param baserow-embeddings.image.repository Docker image repository for the Embeddings service.
-## @param baserow-embeddings.image.tag Docker image tag for the Embeddings service, which is versioned separately from Baserow.
-## @param baserow-embeddings.workingDir Working directory for the container, empty to use the image's own.
-## @param baserow-embeddings.resources Resource requests and limits for the Embeddings service.
-## @param baserow-embeddings.autoscaling.enabled Enable autoscaling for the Embeddings service.
-## @param baserow-embeddings.autoscaling.minReplicas Minimum number of replicas for autoscaling.
-## @param baserow-embeddings.autoscaling.maxReplicas Maximum number of replicas for autoscaling.
-## @param baserow-embeddings.autoscaling.targetCPUUtilizationPercentage Target CPU utilization percentage for autoscaling.
-## @param baserow-embeddings.service.port Service port for the Embeddings service.
-## @param baserow-embeddings.service.targetPort Target port for the Embeddings service.
-## @param baserow-embeddings.readinessProbe.initialDelaySeconds Initial delay for readiness probe.
-## @param baserow-embeddings.readinessProbe.periodSeconds Period for readiness probe.
-## @param baserow-embeddings.readinessProbe.timeoutSeconds Timeout for readiness probe.
-## @param baserow-embeddings.livenessProbe.initialDelaySeconds Initial delay for liveness probe.
-## @param baserow-embeddings.livenessProbe.periodSeconds Period for liveness probe.
-## @param baserow-embeddings.livenessProbe.timeoutSeconds Timeout for liveness probe.
-baserow-embeddings:
-  enabled: false
-  image:
-    repository: embeddings
-    tag: "1.1.0"
-  workingDir: ""
-  resources:
-    requests:
-      cpu: 800m
-      memory: 1536Mi
-    limits:
-      cpu: 1000m
-      memory: 1536Mi
-  readinessProbe:
-    enabled: true
-    exec: null # drop the subchart default exec probe, a probe takes one handler
-    httpGet:
-      path: /health
-      port: 80
-    initialDelaySeconds: 10
-    periodSeconds: 10
-    timeoutSeconds: 5
-    successThreshold: 1
-    failureThreshold: 3
-  livenessProbe:
-    enabled: true
-    exec: null # drop the subchart default exec probe, a probe takes one handler
-    httpGet:
-      path: /health
-      port: 80
-    initialDelaySeconds: 10
-    periodSeconds: 10
-    timeoutSeconds: 5
-    successThreshold: 1
-    failureThreshold: 3
-  autoscaling:
-    enabled: false
-    minReplicas: 1
-    maxReplicas: 3
-    targetCPUUtilizationPercentage: 80
-  service:
-    type: ClusterIP
-    port: 80
-    targetPort: 80
 
 ## @section Ingress Configuration
 ## Configuration for the Ingress resource

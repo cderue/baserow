@@ -612,8 +612,8 @@ class DecorationsViewConfigurationCopyCategoryType(ViewConfigurationCopyCategory
         preserve_ids: bool = False,
         cache: Optional[Dict[str, Any]] = None,
     ) -> Optional[FieldOptionsDict]:
-        # The decorator and value provider types can enforce constraints, a
-        # premium license for example, so their hooks must still be called even
+        # Decorator and value provider types can enforce constraints, so their
+        # hooks must still be called even
         # though the decorations are bulk created. Types that are not
         # registered, because the app providing them has been removed for
         # example, are copied without the hook, like `duplicate_view` does.

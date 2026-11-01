@@ -97,8 +97,7 @@
         "home": "Pagina principale",
         "adminSettings": "Impostazioni di amministrazione",
         "general": "Generale",
-        "people": "Persone",
-        "licenses": "Licenze"
+        "people": "Persone"
     },
     "accountForm": {
         "nameLabel": "Il tuo nome",
@@ -1126,8 +1125,7 @@
         "dashboard": "Dashboard",
         "users": "Utenti",
         "workspaces": "Progetti",
-        "aiProviders": "Provider IA",
-        "licenses": "Gestisci le licenze"
+        "aiProviders": "Provider IA"
     },
     "aiProviderAdmin": {
         "title": "Provider IA",
@@ -1150,24 +1148,6 @@
         "availableForDescription": "Scegli quali delle funzionalità IA elencate possono usare questo modello.",
         "availableForList": "Disponibile per: {features}",
         "availableForNone": "Non disponibile per nessuna delle funzionalità elencate",
-        "featureSettingsTitle": "Funzionalità IA",
-        "featureSettingsDescription": "Scegli un modello di un provider configurato per ciascuna funzionalità. I modelli definiti tramite variabili d'ambiente sono deprecati.",
-        "kumaDisabled": "Disabilitato",
-        "kumaInvalidFallback": "Modello selezionato non disponibile: viene usato il modello d'ambiente deprecato: {model}",
-        "kumaInvalidNoFallback": "Modello selezionato non disponibile: nessun modello d'ambiente configurato",
-        "kumaDisabledInWorkspace": "Disabilitato in questo progetto",
-        "kumaUseInstance": "Usa l'impostazione dell'istanza: {model}",
-        "kumaInheritedUnavailable": "modello dell'istanza selezionato non disponibile",
-        "kumaUseLegacy": "Usa il modello d'ambiente (deprecato): {model}",
-        "kumaLegacyFallback": "modello d'ambiente (deprecato): {model}",
-        "kumaLegacyEmpty": "vuoto",
-        "kumaNotConfigured": "non configurato",
-        "featureModelLabel": "Modello per {feature}",
-        "modelScopeInstance": "Istanza",
-        "modelScopeWorkspace": "Progetto",
-        "noFeatureModels": "Nessun modello idoneo disponibile. Modifica un modello e scegli quali funzionalità possono usarlo.",
-        "featureSettingError": "Impossibile salvare l'impostazione della funzionalità IA.",
-        "featureSettingErrorDescription": "Aggiorna la pagina e scegli un modello disponibile.",
         "modelDiscoveryHelp": "Scegli un modello dall'elenco o inserisci un identificatore personalizzato.",
         "modelDiscoveryUnavailable": "I suggerimenti di modelli noti non sono disponibili. Inserisci un identificatore manualmente.",
         "modelDiscoveryEmpty": "Nessun modello noto per questo provider. Inserisci un identificatore manualmente.",

@@ -18,11 +18,6 @@
       </div>
     </header>
 
-    <AIProviderFeatureSettings
-      v-if="loaded && !loading && !initialLoadFailed"
-      :workspace-id="workspace.id"
-    />
-
     <div
       v-if="loading || (!loaded && !initialLoadFailed)"
       class="ai-provider-admin__loading"
@@ -153,7 +148,6 @@
 
 <script>
 import AIProviderConfirmModal from '@baserow/modules/core/components/ai/AIProviderConfirmModal'
-import AIProviderFeatureSettings from '@baserow/modules/core/components/ai/AIProviderFeatureSettings'
 import AIProviderFormModal from '@baserow/modules/core/components/ai/AIProviderFormModal'
 import AIProviderItem from '@baserow/modules/core/components/ai/AIProviderItem'
 import AIProviderModelFormModal from '@baserow/modules/core/components/ai/AIProviderModelFormModal'
@@ -164,7 +158,6 @@ export default {
   name: 'AIProviderWorkspaceSettings',
   components: {
     AIProviderConfirmModal,
-    AIProviderFeatureSettings,
     AIProviderFormModal,
     AIProviderItem,
     AIProviderModelFormModal,

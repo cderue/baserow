@@ -26,7 +26,7 @@ describe('AdminAIProviders', () => {
     ])
     testApp.store.commit('aiProvider/SET_FEATURE_SETTINGS', [
       {
-        feature_type: 'kuma',
+        feature_type: 'ai_agent',
         mode: 'legacy',
         state: 'unconfigured',
         model: null,
@@ -166,7 +166,7 @@ describe('AdminAIProviders', () => {
         last_test_status: null,
       },
       {
-        usage: [{ featureType: 'ai_fields', count: 3 }],
+        usage: [{ featureType: 'ai_agent', count: 3 }],
       }
     )
 
@@ -201,7 +201,7 @@ describe('AdminAIProviders', () => {
         last_test_status: null,
       },
       {
-        usage: [{ featureType: 'ai_fields', count: 0 }],
+        usage: [{ featureType: 'ai_agent', count: 0 }],
       }
     )
 

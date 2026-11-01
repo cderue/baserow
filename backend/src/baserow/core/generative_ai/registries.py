@@ -5,7 +5,7 @@ from collections import Counter
 from dataclasses import dataclass
 from functools import cached_property
 from inspect import Parameter, signature
-from typing import TYPE_CHECKING, Any, Literal, Optional, get_args, get_origin
+from typing import TYPE_CHECKING, Any, Literal, Optional, Protocol, get_args, get_origin
 
 from django.conf import settings
 
@@ -29,9 +29,6 @@ from .lifecycle import run_agent_sync_with_model
 if TYPE_CHECKING:
     from pydantic_ai import Agent
     from pydantic_ai.messages import UserContent
-
-    from baserow_premium.fields.ai_file import AIFile
-
 
 def call_with_supported_kwargs(method: Any, **kwargs) -> Any:
     """
@@ -78,6 +75,17 @@ class EmbedKindLimit:
     extensions: frozenset[str]
     max_file_bytes: int
     max_files: int
+
+
+class GenerativeAIFile(Protocol):
+    name: str
+    original_name: str
+    size: int
+    mime_type: str
+    content: Any
+    provider_file_id: str | None
+
+    def read_content(self) -> bytes: ...
 
 
 class FileHandler:
@@ -189,7 +197,7 @@ class FileHandler:
 
         return ext in self._UPLOADABLE_EXTENSIONS
 
-    def _embed(self, ai_file: "AIFile") -> None:
+    def _embed(self, ai_file: "GenerativeAIFile") -> None:
         """
         Embed a file as binary content by reading its bytes and setting
         ``ai_file.content`` to a ``BinaryContent`` instance.
@@ -205,7 +213,7 @@ class FileHandler:
             identifier=ai_file.original_name,
         )
 
-    def _inline_text(self, ai_file: "AIFile") -> bool:
+    def _inline_text(self, ai_file: "GenerativeAIFile") -> bool:
         """
         Try to inline file content as a ``TextContent`` instance. Sets
         ``ai_file.content`` on success.
@@ -231,7 +239,7 @@ class FileHandler:
 
     def _upload(
         self,
-        ai_file: "AIFile",
+        ai_file: "GenerativeAIFile",
         workspace: Optional[Workspace] = None,
         settings_override: Optional[dict[str, Any]] = None,
     ) -> None:
@@ -252,16 +260,16 @@ class FileHandler:
 
     def prepare_files(
         self,
-        files: list["AIFile"],
+        files: list["GenerativeAIFile"],
         workspace: Optional[Workspace] = None,
         settings_override: Optional[dict[str, Any]] = None,
-    ) -> list["AIFile"]:
+    ) -> list["GenerativeAIFile"]:
         """
         Process files into prompt content using the cascade:
         inline -> embed -> upload -> skip. Only files that were
         successfully processed (with ``content`` set) are returned.
 
-        :param files: List of AIFile instances to process.
+        :param files: List of file objects to process.
         :param workspace: The workspace for settings resolution.
         :param settings_override: Optional provider settings override.
         :return: The subset of files that were successfully processed.
@@ -304,7 +312,7 @@ class FileHandler:
 
     def delete_file(
         self,
-        ai_file: "AIFile",
+        ai_file: "GenerativeAIFile",
         workspace: Optional[Workspace] = None,
         settings_override: Optional[dict[str, Any]] = None,
     ) -> None:
@@ -324,7 +332,7 @@ class FileHandler:
 
     def cleanup_files(
         self,
-        files: list["AIFile"],
+        files: list["GenerativeAIFile"],
         workspace: Optional[Workspace] = None,
         settings_override: Optional[dict[str, Any]] = None,
     ) -> None:
@@ -332,7 +340,7 @@ class FileHandler:
         Delete all provider-uploaded files. Only files with a
         ``provider_file_id`` are processed. Safe to call with an empty list.
 
-        :param files: List of AIFile instances returned by ``prepare_files``.
+        :param files: List of file objects returned by ``prepare_files``.
         :param workspace: The workspace for settings resolution.
         :param settings_override: Optional provider settings override.
         """
@@ -381,10 +389,10 @@ class GenerativeAIModelType(Instance):
 
     def prepare_files(
         self,
-        files: list["AIFile"],
+        files: list["GenerativeAIFile"],
         workspace: Optional[Workspace] = None,
         settings_override: Optional[dict[str, Any]] = None,
-    ) -> list["AIFile"]:
+    ) -> list["GenerativeAIFile"]:
         """
         Prepare files for prompting by processing them through the file handler,
         if available. Returns the list of AIFile instances that were
@@ -392,7 +400,7 @@ class GenerativeAIModelType(Instance):
         be called before prompting, and the returned files should be passed to
         the prompt via the `content` parameter for multi-modal input.
 
-        :param files: The list of AIFile instances to prepare.
+        :param files: The list of file objects to prepare.
         :param workspace: The workspace for settings resolution.
         :param settings_override: Optional provider settings override.
         """
@@ -406,7 +414,7 @@ class GenerativeAIModelType(Instance):
 
     def cleanup_files(
         self,
-        files: list["AIFile"],
+        files: list["GenerativeAIFile"],
         workspace: Optional[Workspace] = None,
         settings_override: Optional[dict[str, Any]] = None,
     ) -> None:
@@ -415,7 +423,7 @@ class GenerativeAIModelType(Instance):
         in a finally block after prompting, to ensure cleanup happens even if
         prompting fails.
 
-        :param files: The list of AIFile instances to clean up.
+        :param files: The list of file objects to clean up.
         :param workspace: The workspace for settings resolution.
         :param settings_override: Optional provider settings override.
         """

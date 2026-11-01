@@ -434,7 +434,7 @@ class ViewSerializer(serializers.ModelSerializer):
     default_row_values = ViewDefaultValueSerializer(
         many=True, source="view_default_values", required=False
     )
-    show_logo = serializers.BooleanField(required=False)
+    show_logo = serializers.SerializerMethodField()
     ownership_type = serializers.CharField()
     owned_by_id = serializers.IntegerField(required=False)
 
@@ -468,6 +468,9 @@ class ViewSerializer(serializers.ModelSerializer):
             "ownership_type": {"read_only": True},
             "owned_by_id": {"read_only": True},
         }
+
+    def get_show_logo(self, instance):
+        return True
 
     def __init__(self, instance=None, *args, **kwargs):
         context = kwargs.setdefault("context", {})
@@ -724,7 +727,7 @@ class PublicViewSerializer(serializers.ModelSerializer):
     type = serializers.SerializerMethodField()
     sortings = serializers.SerializerMethodField()
     group_bys = serializers.SerializerMethodField()
-    show_logo = serializers.BooleanField(required=False)
+    show_logo = serializers.SerializerMethodField()
     ownership_type = serializers.SerializerMethodField()
 
     @extend_schema_field(PublicViewSortSerializer(many=True))
@@ -752,6 +755,9 @@ class PublicViewSerializer(serializers.ModelSerializer):
     @extend_schema_field(OpenApiTypes.STR)
     def get_type(self, instance):
         return view_type_registry.get_by_model(instance.specific_class).type
+
+    def get_show_logo(self, instance):
+        return True
 
     @extend_schema_field(OpenApiTypes.STR)
     def get_ownership_type(self, instance):

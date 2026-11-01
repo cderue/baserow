@@ -411,7 +411,7 @@ export default {
       )
     },
     showLogo() {
-      return this.view?.show_logo && this.isPublic
+      return this.isPublic
     },
     showViewContext() {
       return (

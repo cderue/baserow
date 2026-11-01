@@ -204,7 +204,7 @@ def test_private_rows_saved_group_by_metadata_excludes_hidden_fields(
     api_client, data_fixture
 ):
     """
-    When hidden_field_ids is non-None (enterprise restricted view), saved
+    When hidden_field_ids is non-None (restricted view), saved
     group-bys on hidden fields must not leak in group_by_metadata on the
     private rows endpoint.
     """

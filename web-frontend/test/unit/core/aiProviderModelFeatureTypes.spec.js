@@ -4,18 +4,18 @@ describe('getEnabledModelsForAIProviderFeature', () => {
   test('uses the feature-filtered models when the backend provides them', () => {
     const workspace = {
       generative_ai_models_enabled: {
-        openai: ['ai-fields-model', 'kuma-only'],
+        openai: ['agent-model', 'other-model'],
       },
       ai_features: {
-        ai_fields: {
-          models: { openai: ['ai-fields-model'] },
+        ai_agent: {
+          models: { openai: ['agent-model'] },
         },
       },
     }
 
     expect(
-      getEnabledModelsForAIProviderFeature(workspace, 'ai_fields')
-    ).toEqual({ openai: ['ai-fields-model'] })
+      getEnabledModelsForAIProviderFeature(workspace, 'ai_agent')
+    ).toEqual({ openai: ['agent-model'] })
   })
 
   test('falls back to generic models when feature availability is missing', () => {
@@ -24,7 +24,7 @@ describe('getEnabledModelsForAIProviderFeature', () => {
     }
 
     expect(
-      getEnabledModelsForAIProviderFeature(workspace, 'ai_fields')
+      getEnabledModelsForAIProviderFeature(workspace, 'ai_agent')
     ).toEqual({ openai: ['legacy-model'] })
   })
 
@@ -32,12 +32,12 @@ describe('getEnabledModelsForAIProviderFeature', () => {
     const workspace = {
       generative_ai_models_enabled: { openai: ['updated-legacy-model'] },
       ai_features: {
-        ai_fields: { models: {} },
+        ai_agent: { models: {} },
       },
     }
 
     expect(
-      getEnabledModelsForAIProviderFeature(workspace, 'ai_fields')
+      getEnabledModelsForAIProviderFeature(workspace, 'ai_agent')
     ).toEqual({})
   })
 })

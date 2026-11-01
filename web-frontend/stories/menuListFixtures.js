@@ -54,7 +54,7 @@ export const menuListItems = [
     icon: 'iconoir-mail',
     description: 'Send a transactional email.',
     aliases: ['message'],
-    meta: { badge: 'Premium' },
+    meta: { badge: 'Beta' },
   },
   {
     id: 'execute-code',

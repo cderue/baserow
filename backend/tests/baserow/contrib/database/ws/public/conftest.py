@@ -100,7 +100,7 @@ class GalleryViewPublicWebsocketTester(PublicWebsocketTester[GalleryView]):
     params=[
         t.type
         for t in view_type_registry.get_all()
-        # premium view types must not be tested here.
+        # Optional view types must not be tested here.
         if t.when_shared_publicly_requires_realtime_events
         and t.type not in ["kanban", "calendar", "timeline"]
         and t.can_share

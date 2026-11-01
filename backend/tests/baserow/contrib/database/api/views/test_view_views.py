@@ -970,6 +970,8 @@ def test_user_with_password_can_get_info_about_a_public_password_protected_view(
     grid_view = data_fixture.create_public_password_protected_grid_view(
         user=user, password=password
     )
+    grid_view.show_logo = False
+    grid_view.save()
 
     # The body of the request must contains a password field
     response = api_client.post(
@@ -1019,7 +1021,7 @@ def test_user_with_password_can_get_info_about_a_public_password_protected_view(
             "row_height_size": grid_view.row_height_size,
             "frozen_column_count": 1,
             "group_by_layout": grid_view.group_by_layout,
-            "show_logo": grid_view.show_logo,
+            "show_logo": True,
             "allow_public_export": grid_view.allow_public_export,
             "ownership_type": "collaborative",
         },
@@ -1052,7 +1054,7 @@ def test_user_with_password_can_get_info_about_a_public_password_protected_view(
             "row_height_size": grid_view.row_height_size,
             "frozen_column_count": 1,
             "group_by_layout": grid_view.group_by_layout,
-            "show_logo": grid_view.show_logo,
+            "show_logo": True,
             "allow_public_export": grid_view.allow_public_export,
             "ownership_type": "collaborative",
         },

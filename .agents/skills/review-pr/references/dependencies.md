@@ -10,7 +10,7 @@ runtime/framework upgrades, and dependency security fixes.
   or deprecated APIs, runtime requirements, and behavior outside the motivating fix.
 - Search the monorepo for affected imports, configuration, extension points, private
   APIs, and transitive packages. A dependency can be used indirectly by plugins,
-  generated code, optional images, Storybook, workers, or enterprise modules.
+  generated code, optional images, Storybook, workers, or optional plugins.
 - Verify Python/Node, Django/Nuxt/Vue, browser, database, and deployment-image support
   against the repository's actual versions. Do not infer compatibility from a broad
   semver range alone.

@@ -92,7 +92,7 @@ Make sure the test file is the active tab before launching this config.
 
 ### backend: pytest all (with coverage)
 
-Runs the full core + premium + enterprise test suite with coverage, writing an
+Runs the full backend test suite with coverage, writing an
 XML report to `html_coverage/cov.xml`.
 
 > `-n=auto` parallelises execution across all CPU cores, which significantly

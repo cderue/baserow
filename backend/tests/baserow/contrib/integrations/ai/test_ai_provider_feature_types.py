@@ -32,7 +32,7 @@ def test_ai_agent_availability_lists_only_feature_models(data_fixture):
     AIProviderModel.objects.create(
         provider_config=provider,
         model_identifier="fields-only-model",
-        feature_types=["ai_fields"],
+        feature_types=["removed_feature"],
     )
 
     availability = ai_provider_model_feature_type_registry.get_workspace_availability(

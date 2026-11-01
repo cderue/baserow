@@ -4,7 +4,6 @@ from django.test.utils import CaptureQueriesContext
 import pytest
 
 from baserow.core.ai_provider.constants import (
-    AI_PROVIDER_FEATURE_KUMA,
     AI_PROVIDER_FEATURE_MODE_MODEL,
 )
 from baserow.core.ai_provider.handler import AIProviderHandler
@@ -95,28 +94,28 @@ def test_models_can_be_reserved_for_individual_ai_features():
     AIProviderModel.objects.create(
         provider_config=provider,
         model_identifier="shared-model",
-        feature_types=["ai_fields", "kuma"],
+        feature_types=["ai_agent", "other_feature"],
     )
     AIProviderModel.objects.create(
         provider_config=provider,
-        model_identifier="kuma-only-model",
-        feature_types=["kuma"],
+        model_identifier="other-only-model",
+        feature_types=["other_feature"],
     )
     AIProviderModel.objects.create(
         provider_config=provider,
-        model_identifier="ai-field-only-model",
-        feature_types=["ai_fields"],
+        model_identifier="ai-agent-only-model",
+        feature_types=["ai_agent"],
     )
 
     model_type = OpenAIGenerativeAIModelType()
 
-    assert model_type.get_enabled_models(feature_type="ai_fields") == [
+    assert model_type.get_enabled_models(feature_type="ai_agent") == [
         "shared-model",
-        "ai-field-only-model",
+        "ai-agent-only-model",
     ]
-    assert model_type.get_enabled_models(feature_type="kuma") == [
+    assert model_type.get_enabled_models(feature_type="other_feature") == [
         "shared-model",
-        "kuma-only-model",
+        "other-only-model",
     ]
 
 
@@ -142,51 +141,6 @@ def test_one_loaded_state_answers_every_question_without_more_queries():
     assert len(resolve_queries) == 0
 
 
-@pytest.mark.django_db
-def test_provider_state_reflects_handler_mutations(data_fixture):
-    workspace = data_fixture.create_workspace()
-
-    assert get_ai_provider_state(workspace).instance_providers == {}
-
-    provider = AIProviderHandler.create_provider("openai", api_key="instance-key")
-    state = get_ai_provider_state(workspace)
-    assert state.instance_providers["openai"].id == provider.id
-
-    model = AIProviderHandler.create_model(
-        provider,
-        model_identifier="kuma-model",
-        feature_types=[AI_PROVIDER_FEATURE_KUMA],
-    )
-    state = get_ai_provider_state(workspace)
-    assert [
-        m.model_identifier for m in state.instance_providers["openai"].models.all()
-    ] == ["kuma-model"]
-
-    AIProviderHandler.set_workspace_provider_enabled(
-        workspace, provider, is_enabled=False
-    )
-    assert (
-        provider.id in get_ai_provider_state(workspace).disabled_instance_provider_ids
-    )
-    AIProviderHandler.set_workspace_provider_enabled(
-        workspace, provider, is_enabled=True
-    )
-    assert (
-        provider.id
-        not in get_ai_provider_state(workspace).disabled_instance_provider_ids
-    )
-
-    AIProviderHandler.update_feature_setting(
-        AI_PROVIDER_FEATURE_KUMA,
-        AI_PROVIDER_FEATURE_MODE_MODEL,
-        model=model,
-    )
-    assert (
-        get_ai_provider_state(workspace)
-        .get_instance_feature_setting(AI_PROVIDER_FEATURE_KUMA)
-        .model_id
-        == model.id
-    )
 
 
 @pytest.mark.django_db

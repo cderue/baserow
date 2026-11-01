@@ -4,7 +4,6 @@ from baserow.core.mixins import CreatedAndUpdatedOnMixin
 
 from .constants import (
     AI_PROVIDER_FEATURE_AI_AGENT,
-    AI_PROVIDER_FEATURE_AI_FIELDS,
     AI_PROVIDER_TEST_STATUS_FAILURE,
     AI_PROVIDER_TEST_STATUS_SUCCESS,
 )
@@ -17,7 +16,7 @@ def get_default_ai_provider_model_feature_types() -> list[str]:
     :returns: A new list containing only AI Fields eligibility.
     """
 
-    return [AI_PROVIDER_FEATURE_AI_FIELDS]
+    return ["ai_fields"]
 
 
 def get_default_ai_provider_model_feature_types_v2() -> list[str]:
@@ -27,7 +26,13 @@ def get_default_ai_provider_model_feature_types_v2() -> list[str]:
     :returns: A new list containing AI Fields and AI Agent eligibility.
     """
 
-    return [AI_PROVIDER_FEATURE_AI_FIELDS, AI_PROVIDER_FEATURE_AI_AGENT]
+    return ["ai_fields", AI_PROVIDER_FEATURE_AI_AGENT]
+
+
+def get_default_ai_provider_model_feature_types_v3() -> list[str]:
+    """Return the default eligibility for the remaining AI Agent consumer."""
+
+    return [AI_PROVIDER_FEATURE_AI_AGENT]
 
 
 class AIProviderConfig(CreatedAndUpdatedOnMixin, models.Model):
@@ -80,9 +85,9 @@ class AIProviderModel(models.Model):
     model_identifier = models.CharField(max_length=255)
     is_enabled = models.BooleanField(default=True, db_default=True)
     feature_types = models.JSONField(
-        default=get_default_ai_provider_model_feature_types_v2,
+        default=get_default_ai_provider_model_feature_types_v3,
         blank=True,
-        db_default=[AI_PROVIDER_FEATURE_AI_FIELDS, AI_PROVIDER_FEATURE_AI_AGENT],
+        db_default=[AI_PROVIDER_FEATURE_AI_AGENT],
         help_text=(
             "The AI features allowed to select this model. This controls "
             "eligibility, not which features currently use the model."

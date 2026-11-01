@@ -1,8 +1,8 @@
 # Database module review
 
 Use this reference for changes under `backend/src/baserow/contrib/database` or
-`web-frontend/modules/database`, their tests and docs, and premium or enterprise code
-that implements or changes a Database extension point. Also use it when shared core
+`web-frontend/modules/database`, their tests and docs, and optional plugins that
+implement or change a Database extension point. Also use it when shared core
 code changes a contract consumed by Database tables, fields, rows, views, formulas,
 data syncs, imports, exports, or workflow actions.
 
@@ -28,7 +28,7 @@ sharing rules do not own the underlying row data.
 Backend `FieldType`, `ViewType`, filter, aggregation, data-sync, export, and workflow
 registries are the extension boundary. Their frontend counterparts normalize the
 same capabilities for stores and components. When a base hook changes, search its
-registrations, overrides, and consumers across core, premium, and enterprise.
+registrations, overrides, and consumers across core and optional plugins.
 Builder, Automation, and Dashboard consume Database contracts or register extensions
 from their own layer.
 
@@ -85,7 +85,7 @@ Use only the sections below that match the selected contract.
   history, and copy/paste. Unsupported capabilities should be denied explicitly and
   consistently on both ends.
 - Follow field behavior through grid cells, row edit, cards, form views, public
-  views, docs examples, import/export, and premium wrappers such as AI fields only
+  views, docs examples, import/export, and optional wrappers only
   when that field claims support for those surfaces. A wrapper or derived field
   delegates value semantics to its underlying type rather than reimplementing a
   drifting subset.

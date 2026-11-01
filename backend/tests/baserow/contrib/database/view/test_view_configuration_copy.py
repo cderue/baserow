@@ -453,8 +453,7 @@ def test_copy_view_configuration_calls_decorator_type_hook(data_fixture):
     data_fixture.create_view_decoration(view=source_view)
 
     # The decorations are bulk created without the handler's create method, but
-    # the decorator type hook must still run because it can enforce
-    # constraints, a premium license for example.
+    # the decorator type hook must still run because it can enforce constraints.
     with patch.object(
         decorator_type_registry.get("tmp_decorator_type_1"),
         "before_create_decoration",

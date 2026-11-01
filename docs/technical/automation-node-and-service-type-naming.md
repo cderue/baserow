@@ -34,8 +34,7 @@ Baserow node types.
 
 These names predate the convention and are kept on purpose: the `User` suffix on the
 Local Baserow data-source service types (`LocalBaserowGetRowUserServiceType`,
-`LocalBaserowListRowsUserServiceType`, `LocalBaserowAggregateRowsUserServiceType` and
-the premium `LocalBaserowGroupedAggregateRowsUserServiceType`),
+`LocalBaserowListRowsUserServiceType` and `LocalBaserowAggregateRowsUserServiceType`),
 `DataSourceLocalBaserowTableServiceType` on the frontend, the three data-source form
 components `LocalBaserowGetRowForm.vue`, `LocalBaserowListRowsForm.vue` and
 `LocalBaserowAggregateRowsForm.vue`, and the builder workflow action type names

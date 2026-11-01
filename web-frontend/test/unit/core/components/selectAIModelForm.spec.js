@@ -55,7 +55,7 @@ const modelTypes = { openai: openAIModelType, anthropic: anthropicModelType }
 const workspace = {
   id: 1,
   generative_ai_models_enabled: { openai: ['legacy-model'] },
-  ai_features: { ai_fields: { models: { openai: ['gpt-4'] } } },
+  ai_features: { ai_agent: { models: { openai: ['gpt-4'] } } },
 }
 
 async function mountForm({
@@ -65,7 +65,7 @@ async function mountForm({
   const wrapper = await mountSuspended(SelectAIModelForm, {
     props: {
       database: { id: 100, workspace: { id: 1 } },
-      featureType: 'ai_fields',
+      featureType: 'ai_agent',
       defaultValues,
     },
     global: {

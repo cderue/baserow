@@ -2364,7 +2364,7 @@ def test_group_by_data_includes_multiple_select_display_values(
 @pytest.mark.django_db
 def test_group_by_data_saved_group_bys_exclude_hidden_fields(api_client, data_fixture):
     """
-    When hidden_field_ids is non-None (enterprise restricted view), saved
+    When hidden_field_ids is non-None (restricted view), saved
     group-bys on hidden fields must not appear in the group tree.
     """
 

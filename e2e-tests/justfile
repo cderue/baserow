@@ -1,5 +1,5 @@
 # E2E Tests Justfile
-# All E2E testing utilities: build, run, test, database dump/restore
+# All E2E testing utilities: build, run, and test
 
 set dotenv-load := true
 
@@ -45,11 +45,6 @@ button_rate_limit := env_var_or_default("E2E_BUTTON_RATE_LIMIT", "3")
 public_backend_url := env_var_or_default("PUBLIC_BACKEND_URL", "http://localhost:" + backend_port)
 public_frontend_url := env_var_or_default("PUBLIC_WEB_FRONTEND_URL", "http://localhost:" + frontend_port)
 builder_preview_url := env_var_or_default("BASEROW_BUILDER_PREVIEW_URL", public_frontend_url)
-
-# Database dump settings
-dump_file := "fixtures/e2e-db.dump"
-dump_network := "e2e-dump-net"
-dump_db := "e2e-dump-db"
 
 # Default: show help
 default:
@@ -126,21 +121,11 @@ _ensure-images:
 # =============================================================================
 
 # Start E2E environment (DB, Redis, backend, frontend)
-# Uses pre-generated database dump for fast startup
 [doc("Start E2E environment containers")]
 up: _ensure-images
     #!/usr/bin/env bash
     set -euo pipefail
     cd "$(git rev-parse --show-toplevel)"
-
-    DUMP_FILE="e2e-tests/{{ dump_file }}"
-
-    # Check if dump file exists
-    if [ ! -f "$DUMP_FILE" ]; then
-        echo "Error: Database dump not found at $DUMP_FILE"
-        echo "Run 'just e2e db-dump' to generate it first."
-        exit 1
-    fi
 
     # Clean up any stopped containers from previous runs
     docker rm -f e2e-frontend e2e-backend e2e-celery e2e-redis e2e-db e2e-httpbin e2e-slack-stub e2e-barrier e2e-mail 2>/dev/null || true
@@ -219,26 +204,6 @@ up: _ensure-images
         echo "Timed out waiting for PostgreSQL to accept connections."
         exit 1
     fi
-
-    BASEROW_DB_CREATED=false
-    for i in {1..30}; do
-        if docker exec e2e-db psql -U baserow -d postgres -tAc "SELECT 1 FROM pg_database WHERE datname='baserow'" | grep -q 1; then
-            BASEROW_DB_CREATED=true
-            break
-        fi
-        sleep 1
-    done
-    if [ "$BASEROW_DB_CREATED" != true ]; then
-        echo "Timed out waiting for PostgreSQL to create the baserow database."
-        exit 1
-    fi
-
-    # Restore database from dump (fast - migrations pre-applied)
-    echo "Restoring database from dump..."
-    docker exec e2e-db psql -U baserow -d postgres -c "DROP DATABASE IF EXISTS baserow;" > /dev/null
-    docker exec e2e-db psql -U baserow -d postgres -c "CREATE DATABASE baserow;" > /dev/null
-    docker exec -i e2e-db pg_restore -U baserow -d baserow --no-owner --no-acl < "$DUMP_FILE" 2>/dev/null || true
-    echo "Database restored."
 
     # Start backend (migrations run on startup to apply any new ones + sync templates)
     if ! docker ps --format '{{ '{{.Names}}' }}' | grep -q "^e2e-backend$"; then
@@ -402,103 +367,3 @@ test *ARGS:
 run: build up test down
 
 # =============================================================================
-# Database Dump
-# =============================================================================
-
-# Generate a fresh database dump with migrations applied (no templates)
-# Templates are synced on E2E startup via post_migrate signal
-[doc("Generate database dump with migrations only")]
-db-dump:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    cd "$(git rev-parse --show-toplevel)"
-
-    echo "=== Creating fresh database dump for E2E tests ==="
-
-    # Cleanup any existing containers
-    docker rm -f {{ dump_db }} e2e-dump-backend e2e-dump-redis 2>/dev/null || true
-    docker network rm {{ dump_network }} 2>/dev/null || true
-
-    # Create network
-    docker network create {{ dump_network }}
-
-    # Start PostgreSQL with pgvector
-    echo "Starting PostgreSQL..."
-    docker run -d --network={{ dump_network }} --name {{ dump_db }} \
-        -e POSTGRES_USER=baserow \
-        -e POSTGRES_PASSWORD=baserow \
-        -e POSTGRES_DB=baserow \
-        {{ db_image }}
-
-    # Wait for PostgreSQL
-    echo "Waiting for PostgreSQL to be ready..."
-    for i in {1..30}; do
-        if docker exec {{ dump_db }} pg_isready -U baserow > /dev/null 2>&1; then
-            break
-        fi
-        sleep 1
-    done
-
-    # Build backend image if needed
-    if ! docker image inspect {{ backend_image }} > /dev/null 2>&1; then
-        echo "Building backend CI image..."
-        just build backend ci
-    fi
-
-    # Start Redis (needed for Django)
-    echo "Starting Redis..."
-    docker run -d --network={{ dump_network }} --name e2e-dump-redis {{ redis_image }}
-    sleep 2
-
-    # Run migrations only (use test settings which doesn't sync templates)
-    echo "Running migrations..."
-    docker run --rm --network={{ dump_network }} --name e2e-dump-backend \
-        -e DATABASE_HOST={{ dump_db }} \
-        -e DATABASE_NAME=baserow \
-        -e DATABASE_USER=baserow \
-        -e DATABASE_PASSWORD=baserow \
-        -e REDIS_URL=redis://e2e-dump-redis:6379 \
-        -e SECRET_KEY=dump-generation \
-        -e DJANGO_SETTINGS_MODULE=baserow.config.settings.test \
-        {{ backend_image }} bash -c "python /baserow/backend/src/baserow/manage.py migrate --noinput"
-
-    # Create the dump
-    echo "Creating database dump..."
-    mkdir -p e2e-tests/fixtures
-    docker exec {{ dump_db }} pg_dump -U baserow -Fc baserow > e2e-tests/{{ dump_file }}
-
-    # Show dump info
-    DUMP_SIZE=$(ls -lh e2e-tests/{{ dump_file }} | awk '{print $5}')
-    echo ""
-    echo "=== Database dump created successfully ==="
-    echo "File: e2e-tests/{{ dump_file }}"
-    echo "Size: $DUMP_SIZE"
-    echo ""
-
-    # Cleanup
-    echo "Cleaning up..."
-    docker rm -f {{ dump_db }} e2e-dump-redis 2>/dev/null || true
-    docker network rm {{ dump_network }} 2>/dev/null || true
-
-    echo "Done! Commit the dump file to the repository."
-
-# Restore database from dump file to a container
-[doc("Restore database dump to a PostgreSQL container")]
-db-restore container:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    cd "$(git rev-parse --show-toplevel)"
-
-    DUMP_PATH="e2e-tests/{{ dump_file }}"
-
-    if [ ! -f "$DUMP_PATH" ]; then
-        echo "Error: Dump file not found at $DUMP_PATH"
-        echo "Run 'just e2e db-dump' to generate it first."
-        exit 1
-    fi
-
-    echo "Restoring database from dump..."
-    docker exec {{ container }} psql -U baserow -d postgres -c "DROP DATABASE IF EXISTS baserow;"
-    docker exec {{ container }} psql -U baserow -d postgres -c "CREATE DATABASE baserow;"
-    docker exec -i {{ container }} pg_restore -U baserow -d baserow --no-owner --no-acl < "$DUMP_PATH" || true
-    echo "Database restored successfully!"

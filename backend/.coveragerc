@@ -10,5 +10,3 @@ omit =
 # shown correctly.
 include =
     backend/src/**/*
-    premium/backend/src/**/*
-    enterprise/backend/src/**/*

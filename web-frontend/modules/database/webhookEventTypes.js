@@ -231,7 +231,6 @@ export const viewExample = {
   filter_type: 'AND',
   filters_disabled: false,
   public_view_has_password: false,
-  show_logo: true,
   ownership_type: 'collaborative',
   owned_by_id: null,
   row_identifier_type: 'id',

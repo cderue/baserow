@@ -344,9 +344,6 @@
             "formLinkName": "formulier"
         }
     },
-    "premium": {
-        "deactivated": "Beschikbaar in premium versie"
-    },
     "trashType": {
         "workspace": "werkruimte",
         "agent": "agent",

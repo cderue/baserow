@@ -1,6 +1,6 @@
 """
 Covers workspace scoping, permission filtering, and CRUD correctness for all
-service functions used by MCP tools and the enterprise assistant.
+service functions used by MCP tools and AI Agent workflows.
 """
 
 import pytest

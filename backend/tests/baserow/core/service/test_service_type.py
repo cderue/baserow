@@ -9,7 +9,6 @@ from baserow.core.services.handler import ServiceHandler
 from baserow.core.services.models import Service
 from baserow.core.services.registries import ServiceType, service_type_registry
 from baserow.test_utils.pytest_conftest import FakeDispatchContext
-from baserow_premium.integrations.local_baserow.service_types import DispatchResult
 
 
 @pytest.mark.django_db
@@ -336,7 +335,7 @@ def test_dispatch_even_if_simulated_when_updated():
     service_type.get_sample_data = MagicMock(return_value={"data": {"foo": "bar"}})
     service_type.dispatch_data = MagicMock(return_value={"data": {"other": "data"}})
     service_type.dispatch_transform = MagicMock(
-        return_value=DispatchResult(data={"someother": "data"})
+        return_value=Mock(data={"someother": "data"})
     )
 
     mock_service = MagicMock()
@@ -368,7 +367,7 @@ def test_dispatch_even_if_simulated_without_sample_data():
     service_type.get_sample_data = MagicMock(return_value=None)
     service_type.dispatch_data = MagicMock(return_value={"data": {"other": "data"}})
     service_type.dispatch_transform = MagicMock(
-        return_value=DispatchResult(data={"someother": "data"})
+        return_value=Mock(data={"someother": "data"})
     )
 
     mock_service = MagicMock()
@@ -398,7 +397,7 @@ def test_dispatch_even_if_simulated_with_error_sample_data():
 
     service_type.dispatch_data = MagicMock(return_value={"data": {"other": "data"}})
     service_type.dispatch_transform = MagicMock(
-        return_value=DispatchResult(data={"someother": "data"})
+        return_value=Mock(data={"someother": "data"})
     )
 
     mock_service = MagicMock()

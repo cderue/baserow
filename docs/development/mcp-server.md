@@ -20,8 +20,8 @@ ActionTypes → Django ORM
 ```
 
 - **MCPTool** (`registries.py`) — Base class for all tools. Subclasses define a `type`, a Pydantic `input_schema`, and implement `_sync_call()`. Tools with `enabled = False` are registered but hidden from MCP clients.
-- **Services layer** (`services.py`) — Workspace-scoped database operations. Shared by both MCP tools and the enterprise AI assistant.
-- **Shared tools** (`baserow/core/tools/`, `baserow/contrib/database/tools/`) — Tool functions that MCP, Kuma and the Agent Builder all call. A shared tool takes a `ToolContext` (user, workspace, status callback) plus arguments annotated with `Annotated[..., Field(description=...)]`, and knows nothing about the client. `FunctionMCPTool` builds its MCP input schema from the signature and its description from the docstring; MCP-only metadata (title, group, read-only) is set where it is registered, for example `contrib/database/mcp/views/tools.py`. Kuma wraps the same function in its own tool, which adds Kuma's argument (`thought`) and guidance.
+- **Services layer** (`services.py`) — Workspace-scoped database operations. Shared by MCP tools and AI Agent workflows.
+- **Shared tools** (`baserow/core/tools/`, `baserow/contrib/database/tools/`) — Tool functions shared by MCP and AI Agent workflows. A shared tool takes a `ToolContext` (user, workspace, status callback) plus arguments annotated with `Annotated[..., Field(description=...)]`, and knows nothing about the client. `FunctionMCPTool` builds its MCP input schema from the signature and its description from the docstring; MCP-only metadata (title, group, read-only) is set where it is registered, for example `contrib/database/mcp/views/tools.py`. AI Agent workflows can adapt the same function to their own inputs.
 - **Action types** — All mutations go through Baserow's action-type layer, so operations are undoable and audit-logged.
 - **Workspace isolation** — Every service function enforces workspace-scoped access. Tools cannot touch data outside the endpoint's workspace.
 - **SSE transport** (`backend/src/baserow/core/mcp/sse.py`) — `DjangoChannelsSseServerTransport` serves the legacy `GET /mcp/{key}/sse` stream and `POST /mcp/messages/`.
@@ -102,27 +102,27 @@ Some tools are currently disabled (`enabled = False`) and hidden from MCP client
 
 | Tool | Status | Description |
 |---|---|---|
-| `list_applications` | enabled | List the workspace's databases, a page at a time (shared with Kuma) |
+| `list_applications` | enabled | List the workspace's databases, a page at a time (shared with AI Agent workflows) |
 | `list_databases` | enabled | List all databases in the workspace (kept for existing connections, until 2.6) |
-| `list_tables` | enabled | List tables, optionally filtered by database or table name (shared with Kuma) |
-| `get_table_schema` | enabled | Get field definitions for one or more tables (shared with Kuma) |
+| `list_tables` | enabled | List tables, optionally filtered by database or table name (shared with AI Agent workflows) |
+| `get_table_schema` | enabled | Get field definitions for one or more tables (shared with AI Agent workflows) |
 | `list_table_rows` | enabled | List rows with optional search and pagination |
 | `create_rows` | enabled | Create one or more rows using field names |
 | `update_rows` | enabled | Update rows by ID using field names |
 | `delete_rows` | enabled | Delete rows by ID |
-| `list_views` | enabled | List the views of a table (shared with Kuma) |
-| `create_tables` | enabled | Create tables with their fields (shared with Kuma) |
-| `create_fields` | enabled | Add fields to a table (shared with Kuma) |
-| `update_fields` | enabled | Rename fields or change their settings (shared with Kuma) |
-| `delete_fields` | enabled | Delete (trash) fields (shared with Kuma) |
-| `create_views` | enabled | Create views in a table (shared with Kuma) |
-| `create_view_filters` | enabled | Add filters to views (shared with Kuma) |
-| `list_workflows` | enabled | List the automations of the workspace and their workflows (shared with Kuma) |
-| `list_nodes` | enabled | List a workflow's nodes in order, with their branches and output paths (shared with Kuma) |
-| `create_workflows` | enabled | Create workflows with a trigger and nodes (shared with Kuma) |
-| `add_nodes` | enabled | Add nodes to a workflow (shared with Kuma) |
-| `update_nodes` | enabled | Change node labels, settings and router conditions (shared with Kuma) |
-| `delete_nodes` | enabled | Delete (trash) workflow nodes (shared with Kuma) |
+| `list_views` | enabled | List the views of a table (shared with AI Agent workflows) |
+| `create_tables` | enabled | Create tables with their fields (shared with AI Agent workflows) |
+| `create_fields` | enabled | Add fields to a table (shared with AI Agent workflows) |
+| `update_fields` | enabled | Rename fields or change their settings (shared with AI Agent workflows) |
+| `delete_fields` | enabled | Delete (trash) fields (shared with AI Agent workflows) |
+| `create_views` | enabled | Create views in a table (shared with AI Agent workflows) |
+| `create_view_filters` | enabled | Add filters to views (shared with AI Agent workflows) |
+| `list_workflows` | enabled | List the automations of the workspace and their workflows (shared with AI Agent workflows) |
+| `list_nodes` | enabled | List a workflow's nodes in order, with their branches and output paths (shared with AI Agent workflows) |
+| `create_workflows` | enabled | Create workflows with a trigger and nodes (shared with AI Agent workflows) |
+| `add_nodes` | enabled | Add nodes to a workflow (shared with AI Agent workflows) |
+| `update_nodes` | enabled | Change node labels, settings and router conditions (shared with AI Agent workflows) |
+| `delete_nodes` | enabled | Delete (trash) workflow nodes (shared with AI Agent workflows) |
 | `update_table` | disabled | Rename a table |
 | `delete_table` | disabled | Delete (trash) a table |
 
@@ -137,7 +137,7 @@ list_databases
             └─ delete_rows(table_id, [1, 2])
 ```
 
-The automation tools are in their own groups (`automation_read`, `automation_edit`, `automation_delete`) and are not part of the "Read only" preset, so a user turns them on at consent or later under Settings. A value that takes a formula is stored as written when it is a valid formula and quoted when it is a literal. A formula is invalid when it doesn't parse, or reads a `previous_node` path the node doesn't output (the paths `list_nodes` shows). An invalid formula comes back in `formula_errors` for the client to fix with `update_nodes`: on a new node the value is left empty, on an update it keeps what it had. A formula can name a node created earlier in the same call by its ref, as in `get('previous_node.trigger.0.id')`. Over MCP no model is called; Kuma repairs those values with its formula generator after the nodes are committed.
+The automation tools are in their own groups (`automation_read`, `automation_edit`, `automation_delete`) and are not part of the "Read only" preset, so a user turns them on at consent or later under Settings. A value that takes a formula is stored as written when it is a valid formula and quoted when it is a literal. A formula is invalid when it doesn't parse, or reads a `previous_node` path the node doesn't output (the paths `list_nodes` shows). An invalid formula comes back in `formula_errors` for the client to fix with `update_nodes`: on a new node the value is left empty, on an update it keeps what it had. A formula can name a node created earlier in the same call by its ref, as in `get('previous_node.trigger.0.id')`. Over MCP no model is called; AI Agent workflows may generate formulas after nodes are committed.
 
 ## Adding a new tool
 
@@ -162,9 +162,6 @@ just b test tests/baserow/contrib/database/mcp/
 
 # Endpoint API
 just b test tests/baserow/api/test_mcp_views.py
-
-# OAuth audit log (enterprise)
-just b test ../enterprise/backend/tests/baserow_enterprise_tests/audit_log/test_mcp_oauth_audit_log.py
 
 # Service layer only
 just b test tests/baserow/contrib/database/mcp/test_mcp_services.py

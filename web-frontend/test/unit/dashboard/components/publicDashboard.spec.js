@@ -16,7 +16,6 @@ function mountPublicDashboard({
         id: 1,
         name: 'Conversion compass',
         description: 'Tracking conversion rates at every stage.',
-        show_logo: true,
         workspace: { id: 0 },
         ...dashboard,
       },
@@ -88,10 +87,10 @@ describe('PublicDashboard', () => {
     )
   })
 
-  test('hides the Baserow logo when the owner switched it off', () => {
+  test('always shows the Baserow logo for legacy hidden-logo data', () => {
     const wrapper = mountPublicDashboard({ dashboard: { show_logo: false } })
 
-    expect(wrapper.find('[data-testid="baserow-logo"]').exists()).toBe(false)
+    expect(wrapper.find('[data-testid="baserow-logo"]').exists()).toBe(true)
   })
 
   test('leaves out an empty description', () => {
@@ -144,12 +143,12 @@ describe('PublicDashboard', () => {
     ).toBe('JWT secret-token')
   })
 
-  test('keeps the report link when the logo is hidden', () => {
-    const wrapper = mountPublicDashboard({ dashboard: { show_logo: false } })
+  test('shows the logo and report link when reporting is enabled', () => {
+    const wrapper = mountPublicDashboard()
 
     expect(wrapper.find('.public-dashboard__footer').exists()).toBe(true)
     expect(wrapper.find('.public-dashboard__report-abuse').exists()).toBe(true)
-    expect(wrapper.find('[data-testid="baserow-logo"]').exists()).toBe(false)
+    expect(wrapper.find('[data-testid="baserow-logo"]').exists()).toBe(true)
   })
 
   test('hides the report link when reporting is disabled instance wide', () => {
@@ -164,12 +163,4 @@ describe('PublicDashboard', () => {
     expect(wrapper.find('[data-testid="baserow-logo"]').exists()).toBe(true)
   })
 
-  test('renders no footer when the logo is hidden and reporting is disabled', () => {
-    const wrapper = mountPublicDashboard({
-      dashboard: { show_logo: false },
-      settings: { allow_reporting_abuse: false },
-    })
-
-    expect(wrapper.find('.public-dashboard__footer').exists()).toBe(false)
-  })
 })

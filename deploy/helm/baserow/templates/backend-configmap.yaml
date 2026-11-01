@@ -20,9 +20,6 @@ metadata:
 {{- $_ := set $data "AWS_S3_CUSTOM_DOMAIN" (printf "%s/%s" .Values.global.baserow.objectsDomain (index .Values.minio.provisioning.buckets 0).name) }}
 {{- $_ := set $data "AWS_S3_REGION_NAME" "us-east-1" }}
 {{- end }}
-{{- if (index .Values "baserow-embeddings").enabled }}
-{{- $_ := set $data "BASEROW_EMBEDDINGS_API_URL" (printf "http://%s" (include "baserow.fullname" (index .Subcharts "baserow-embeddings"))) }}
-{{- end }}
 {{- if (index .Values "baserow-email-receiver").enabled }}
 {{- $_ := set $data "BASEROW_INBOUND_EMAIL_RECEIVER_URL" (printf "http://%s:%v" (include "baserow.fullname" (index .Subcharts "baserow-email-receiver")) (index .Values "baserow-email-receiver" "service" "port")) }}
 {{- end }}

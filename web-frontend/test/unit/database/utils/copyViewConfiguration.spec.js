@@ -46,10 +46,7 @@ describe('getEnabledCopyOptionKeys', () => {
 
   const view = (type) => ({ id: 1, type })
 
-  // The TestApp registers the premium view decorators, but the test workspace
-  // has no premium license, so they are deactivated and the `decorations`
-  // option is disabled to prevent a copy that the backend would reject.
-  test('grid to grid enables every option with an available decorator', () => {
+  test('grid to grid enables core options when no decorators are registered', () => {
     const registry = testApp.getRegistry()
     expect(
       getEnabledCopyOptionKeys(registry, view('grid'), view('grid'))
@@ -64,14 +61,9 @@ describe('getEnabledCopyOptionKeys', () => {
       'default_row_values',
     ])
 
-    const decorator = Object.values(registry.getAll('viewDecorator'))[0]
-    const isDeactivatedSpy = vi
-      .spyOn(Object.getPrototypeOf(decorator), 'isDeactivated')
-      .mockReturnValue(false)
     expect(
       getEnabledCopyOptionKeys(registry, view('grid'), view('grid'))
-    ).toContain('decorations')
-    isDeactivatedSpy.mockRestore()
+    ).not.toContain('decorations')
   })
 
   test('grid to gallery disables grid specific options', () => {

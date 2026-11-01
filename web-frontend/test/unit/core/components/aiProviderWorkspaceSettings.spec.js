@@ -3,7 +3,6 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
 import AIProviderActionsMenu from '@baserow/modules/core/components/ai/AIProviderActionsMenu'
 import AIProviderConfirmModal from '@baserow/modules/core/components/ai/AIProviderConfirmModal'
-import AIProviderFeatureSettings from '@baserow/modules/core/components/ai/AIProviderFeatureSettings'
 import AIProviderWorkspaceSettings from '@baserow/modules/core/components/workspace/AIProviderWorkspaceSettings'
 import { TestApp } from '@baserow/test/helpers/testApp'
 
@@ -24,7 +23,7 @@ describe('AIProviderWorkspaceSettings', () => {
     model_identifier: 'workspace-model',
     is_enabled: true,
     last_test_status: null,
-    feature_types: ['ai_fields', 'ai_agent'],
+    feature_types: ['ai_agent'],
   })
 
   const mountWithModel = async (model, usage) => {
@@ -69,7 +68,7 @@ describe('AIProviderWorkspaceSettings', () => {
     const model = enabledModel()
     const { wrapper, dispatch } = await mountWithModel(model, {
       usage: [
-        { featureType: 'ai_fields', count: 3 },
+        { featureType: 'ai_agent', count: 3 },
         { featureType: 'ai_agent', count: 0 },
       ],
     })
@@ -107,7 +106,7 @@ describe('AIProviderWorkspaceSettings', () => {
     const model = enabledModel()
     const { wrapper, dispatch } = await mountWithModel(model, {
       usage: [
-        { featureType: 'ai_fields', count: 0 },
+        { featureType: 'ai_agent', count: 0 },
         { featureType: 'ai_agent', count: 0 },
       ],
     })
@@ -162,7 +161,7 @@ describe('AIProviderWorkspaceSettings', () => {
     const model = enabledModel()
     const { wrapper, dispatch } = await mountWithModel(model, {
       usage: [
-        { featureType: 'ai_fields', count: 1 },
+        { featureType: 'ai_agent', count: 1 },
         { featureType: 'ai_agent', count: 2 },
       ],
     })
@@ -191,7 +190,7 @@ describe('AIProviderWorkspaceSettings', () => {
   test('keeps the plain delete message when nothing uses the model', async () => {
     const model = enabledModel()
     const { wrapper } = await mountWithModel(model, {
-      usage: [{ featureType: 'ai_fields', count: 0 }],
+      usage: [{ featureType: 'ai_agent', count: 0 }],
     })
 
     await selectModelAction(wrapper, 'delete')
@@ -201,72 +200,7 @@ describe('AIProviderWorkspaceSettings', () => {
     )
   })
 
-  test('keeps legacy Kuma controls available without providers', async () => {
-    const featureSetting = {
-      feature_type: 'kuma',
-      mode: 'inherit',
-      state: 'unconfigured',
-      model: null,
-      inherited_model: null,
-    }
-    testApp.store.commit('aiProvider/SET_WORKSPACE_ID', 42)
-    testApp.store.commit('aiProvider/SET_LOADED', true)
-    testApp.store.commit('aiProvider/SET_PROVIDERS', [])
-    testApp.store.commit('aiProvider/SET_PROVIDER_TYPES', [
-      { type: 'openai', name: 'OpenAI', uses_api_key: true, extra_fields: [] },
-    ])
-    testApp.store.commit('aiProvider/SET_FEATURE_SETTINGS', [featureSetting])
-    testApp.store.commit('settings/UPDATE_SETTINGS', {
-      kuma: { is_enabled: true },
-    })
-    const dispatch = vi
-      .spyOn(testApp.store, 'dispatch')
-      .mockResolvedValue(undefined)
-
-    vi.spyOn(
-      testApp.$registry.get('aiProviderModelFeature', 'kuma'),
-      'getLegacyModel'
-    ).mockReturnValue('groq:legacy-model')
-
-    const wrapper = await testApp.mount(AIProviderWorkspaceSettings, {
-      props: { workspace: { id: 42 } },
-    })
-    await flushPromises()
-
-    const header = wrapper.find('.ai-provider-admin__header')
-    expect(header.find('button').text()).toBe('aiProviderAdmin.addProvider')
-    expect(header.find('button').attributes('disabled')).toBeUndefined()
-    expect(
-      wrapper.find('.ai-provider-workspace-settings__toolbar').exists()
-    ).toBe(false)
-    const featureSettings = wrapper.findComponent(AIProviderFeatureSettings)
-    expect(featureSettings.exists()).toBe(true)
-    expect(featureSettings.find('.select__item').classes()).not.toContain(
-      'disabled'
-    )
-    expect(wrapper.text()).toContain(
-      'generativeAIWorkspaceSettings.noProviders'
-    )
-
-    await featureSettings.vm.updateSelection(featureSetting, 'disabled')
-    expect(dispatch).toHaveBeenCalledWith('aiProvider/updateFeatureSetting', {
-      featureType: 'kuma',
-      values: { mode: 'disabled' },
-      workspaceId: 42,
-    })
-
-    await featureSettings.vm.updateSelection(
-      { ...featureSetting, mode: 'disabled', state: 'disabled' },
-      'inherit'
-    )
-    expect(dispatch).toHaveBeenCalledWith('aiProvider/updateFeatureSetting', {
-      featureType: 'kuma',
-      values: { mode: 'inherit' },
-      workspaceId: 42,
-    })
-  })
-
-  test('keeps feature settings visible after deleting the last provider', async () => {
+  test('shows an empty state after deleting the last provider', async () => {
     const provider = {
       id: 1,
       provider_type: 'openai',
@@ -280,15 +214,6 @@ describe('AIProviderWorkspaceSettings', () => {
     testApp.store.commit('aiProvider/SET_PROVIDERS', [provider])
     testApp.store.commit('aiProvider/SET_PROVIDER_TYPES', [
       { type: 'openai', name: 'OpenAI', uses_api_key: true, extra_fields: [] },
-    ])
-    testApp.store.commit('aiProvider/SET_FEATURE_SETTINGS', [
-      {
-        feature_type: 'kuma',
-        mode: 'disabled',
-        state: 'disabled',
-        model: null,
-        inherited_model: null,
-      },
     ])
     const dispatch = vi
       .spyOn(testApp.store, 'dispatch')
@@ -308,7 +233,6 @@ describe('AIProviderWorkspaceSettings', () => {
       providerId: 1,
       workspaceId: 42,
     })
-    expect(wrapper.findComponent(AIProviderFeatureSettings).exists()).toBe(true)
     expect(wrapper.text()).toContain(
       'generativeAIWorkspaceSettings.noProviders'
     )
@@ -337,7 +261,7 @@ describe('AIProviderWorkspaceSettings', () => {
     ])
     testApp.store.commit('aiProvider/SET_FEATURE_SETTINGS', [
       {
-        feature_type: 'kuma',
+        feature_type: 'ai_agent',
         mode: 'inherit',
         state: 'unconfigured',
         model: null,

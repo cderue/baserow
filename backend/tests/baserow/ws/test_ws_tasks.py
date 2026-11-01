@@ -97,7 +97,7 @@ def test_workspace_ai_provider_update_payloads_are_complete_permission_scoped_an
         "ai_provider_feature_settings_by_workspace"
     ][workspace_key]
     assert [setting["feature_type"] for setting in workspace_feature_settings] == [
-        "kuma"
+        "removed_feature"
     ]
 
     assert "instance_ai_providers" not in admin_payload
@@ -316,7 +316,7 @@ def test_instance_ai_provider_update_payload_is_staff_only_and_bounded(data_fixt
         assert [
             setting["feature_type"]
             for setting in payload["instance_ai_provider_feature_settings"]
-        ] == ["kuma"]
+        ] == ["removed_feature"]
 
 
 @pytest.mark.django_db

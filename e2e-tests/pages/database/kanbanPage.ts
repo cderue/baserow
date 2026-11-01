@@ -5,7 +5,7 @@ import { User } from "../../fixtures/user";
 import { View } from "../../fixtures/database/view";
 import { openTableAs } from "./tableNavigation";
 
-/** Page object for the premium kanban view; stacks are addressed by option label. */
+/** Page object for the kanban view; stacks are addressed by option label. */
 export class KanbanPage {
   constructor(
     readonly page: Page,

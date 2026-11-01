@@ -31,13 +31,6 @@ export class BaserowPlugin extends Registerable {
   }
 
   /**
-   * Every registered plugin can have a component displaying a badge with the highest license type
-   */
-  getHighestLicenseTypeBadge() {
-    return null
-  }
-
-  /**
    * Every registered plugin can display an additional item in the sidebar within
    * the workspace context.
    */

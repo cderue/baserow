@@ -162,9 +162,6 @@
             "formLinkName": "表单"
         }
     },
-    "premium": {
-        "deactivated": "无效"
-    },
     "trashType": {
         "workspace": "群组",
         "application": "应用",

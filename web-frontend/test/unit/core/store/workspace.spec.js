@@ -133,13 +133,13 @@ describe('Workspace store', () => {
       id: 1,
       name: 'Workspace 1',
       generative_ai_models_enabled: {},
-      ai_features: { kuma: { is_enabled: false } },
+      ai_features: { ai_agent: { is_enabled: false } },
     })
     await store.dispatch('workspace/forceCreate', {
       id: 2,
       name: 'Workspace 2',
       generative_ai_models_enabled: {},
-      ai_features: { kuma: { is_enabled: false } },
+      ai_features: { ai_agent: { is_enabled: false } },
     })
     let resolveRefresh
     testApp.mock.onGet('/workspaces/').reply(
@@ -156,7 +156,7 @@ describe('Workspace store', () => {
     await store.dispatch('workspace/forceUpdateGenerativeAIModels', {
       workspaceId: 1,
       generativeAIModelsEnabled: { openai: ['realtime-model'] },
-      aiFeatures: { kuma: { is_enabled: true } },
+      aiFeatures: { ai_agent: { is_enabled: true } },
     })
     resolveRefresh([
       200,
@@ -164,12 +164,12 @@ describe('Workspace store', () => {
         {
           id: 1,
           generative_ai_models_enabled: { openai: ['stale-model'] },
-          ai_features: { kuma: { is_enabled: false } },
+          ai_features: { ai_agent: { is_enabled: false } },
         },
         {
           id: 2,
           generative_ai_models_enabled: { openai: ['fresh-model'] },
-          ai_features: { kuma: { is_enabled: true } },
+          ai_features: { ai_agent: { is_enabled: true } },
         },
       ],
     ])
@@ -177,11 +177,11 @@ describe('Workspace store', () => {
 
     expect(store.getters['workspace/get'](1)).toMatchObject({
       generative_ai_models_enabled: { openai: ['realtime-model'] },
-      ai_features: { kuma: { is_enabled: true } },
+      ai_features: { ai_agent: { is_enabled: true } },
     })
     expect(store.getters['workspace/get'](2)).toMatchObject({
       generative_ai_models_enabled: { openai: ['fresh-model'] },
-      ai_features: { kuma: { is_enabled: true } },
+      ai_features: { ai_agent: { is_enabled: true } },
     })
   })
 
@@ -190,7 +190,7 @@ describe('Workspace store', () => {
       id: 1,
       name: 'Old workspace name',
       generative_ai_models_enabled: {},
-      ai_features: { kuma: { is_enabled: false } },
+      ai_features: { ai_agent: { is_enabled: false } },
     })
     let resolveFetch
     testApp.mock.onGet('/workspaces/').reply(
@@ -205,7 +205,7 @@ describe('Workspace store', () => {
     await store.dispatch('workspace/forceUpdateGenerativeAIModels', {
       workspaceId: 1,
       generativeAIModelsEnabled: { openai: ['realtime-model'] },
-      aiFeatures: { kuma: { is_enabled: true } },
+      aiFeatures: { ai_agent: { is_enabled: true } },
     })
     resolveFetch([
       200,
@@ -214,7 +214,7 @@ describe('Workspace store', () => {
           id: 1,
           name: 'Fresh workspace name',
           generative_ai_models_enabled: { openai: ['stale-model'] },
-          ai_features: { kuma: { is_enabled: false } },
+          ai_features: { ai_agent: { is_enabled: false } },
         },
       ],
     ])
@@ -223,7 +223,7 @@ describe('Workspace store', () => {
     expect(store.getters['workspace/get'](1)).toMatchObject({
       name: 'Fresh workspace name',
       generative_ai_models_enabled: { openai: ['realtime-model'] },
-      ai_features: { kuma: { is_enabled: true } },
+      ai_features: { ai_agent: { is_enabled: true } },
     })
   })
 
@@ -231,7 +231,7 @@ describe('Workspace store', () => {
     await store.dispatch('workspace/forceCreate', {
       id: 1,
       generative_ai_models_enabled: {},
-      ai_features: { kuma: { is_enabled: false } },
+      ai_features: { ai_agent: { is_enabled: false } },
     })
     let resolveRefresh
     testApp.mock.onGet('/workspaces/').reply(
@@ -255,7 +255,7 @@ describe('Workspace store', () => {
         {
           id: 1,
           generative_ai_models_enabled: { openai: ['stale-model'] },
-          ai_features: { kuma: { is_enabled: true } },
+          ai_features: { ai_agent: { is_enabled: true } },
         },
       ],
     ])
@@ -263,7 +263,7 @@ describe('Workspace store', () => {
 
     expect(store.getters['workspace/get'](1)).toMatchObject({
       generative_ai_models_enabled: { openai: ['realtime-model'] },
-      ai_features: { kuma: { is_enabled: true } },
+      ai_features: { ai_agent: { is_enabled: true } },
     })
   })
 

@@ -146,7 +146,6 @@ export class ClientErrorMap {
         $i18n.t('clientHandler.generateAIPromptTitle'),
         $i18n.t('clientHandler.generateAIPromptDescription')
       ),
-      // TODO: Move to enterprise module if possible
       ERROR_CANNOT_DISABLE_ALL_AUTH_PROVIDERS: new ResponseErrorMessage(
         $i18n.t('clientHandler.cannotDisableAllAuthProvidersTitle'),
         $i18n.t('clientHandler.cannotDisableAllAuthProvidersDescription')

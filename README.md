@@ -1,26 +1,20 @@
-## Baserow: build databases, automations, apps & agents with AI — no code
+## Baserow: build databases, automations, apps & agents — no code
 
-Baserow is the secure, open-source platform for building databases, applications,
-automations, and AI agents — all without code. Trusted by over 150,000 users, Baserow
-delivers enterprise-grade security with GDPR, HIPAA, and SOC 2 Type II compliance, plus
-cloud and self-hosted deployments for full data control. With a built-in AI Assistant
-that lets you create databases and workflows using natural language, Baserow empowers
-teams to structure data, automate processes, build internal tools, and create custom
-dashboards. Fully extensible and API-first, Baserow integrates seamlessly with your
-existing tools and performs at any scale.
+Baserow is the open-source platform for building databases, applications,
+automations, dashboards, and AI agents — all without code. Baserow empowers teams to
+structure data, automate processes, and build internal tools. It is self-hostable,
+extensible, and API-first.
 
 * A spreadsheet database hybrid combining ease of use and powerful data organization.
 * Create applications and portals, and publish them on your own domain.
 * Automate repetitive workflows with automations.
 * Visualize your data with dashboards.
-* Kuma, powerful AI-assistant to builds complete solutions.
-* GDPR, HIPAA, and SOC 2 Type II compliant.
+* Build AI agents and use them in applications and automations.
 * Easily self-hosted with no storage restrictions or sign-up on https://baserow.io to
   get started immediately.
 * Best Alternative to Airtable.
-* Open-core with all non-premium and non-enterprise features under
-  the [MIT License](https://choosealicense.com/licenses/mit/) allowing commercial and
-  private use.
+* Released under the [MIT License](https://choosealicense.com/licenses/mit/), allowing
+  commercial and private use.
 * Headless and API first.
 * Uses popular frameworks and tools like [Django](https://www.djangoproject.com/),
   [Vue.js](https://vuejs.org/) and [PostgreSQL](https://www.postgresql.org/).
@@ -32,8 +26,6 @@ docker run -v baserow_data:/baserow/data -p 80:80 -p 443:443 baserow/baserow:2.4
 ```
 
 ![Baserow database screenshot](docs/assets/screenshot.png "Baserow database screenshot")
-
-![Baserow form screenshot](docs/assets/screenshot_kuma_form.png "Baserow form view and Kuma screenshot")
 
 ![Baserow kanban screenshot](docs/assets/screenshot_kanban.png "Baserow kanban view screenshot")
 

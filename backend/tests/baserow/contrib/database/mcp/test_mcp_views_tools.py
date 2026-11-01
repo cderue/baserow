@@ -1,4 +1,4 @@
-"""Tests for list_views, the first tool shared with Kuma over MCP."""
+"""Tests for list_views, the first tool shared with AI Agent over MCP."""
 
 import json
 

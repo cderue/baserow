@@ -19,7 +19,7 @@ spec, fixture, and page object in the same area.
 Useful searches:
 
 - `find e2e-tests/tests -type f -name '*.spec.ts' | sort`
-- `rg -n "test\\.describe|test\\(|test\\.before|@fast|@slow|@enterprise" e2e-tests/tests`
+- `rg -n "test\\.describe|test\\(|test\\.before|@fast|@slow" e2e-tests/tests`
 - `rg -n "class .*Page|async .*\\(" e2e-tests/pages e2e-tests/fixtures`
 - `rg -n "getByRole|getByLabel|getByText|locator\\(" e2e-tests/tests e2e-tests/pages`
 

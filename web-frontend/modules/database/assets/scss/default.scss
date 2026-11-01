@@ -1,6 +1,6 @@
 // The database module adds its own entry to `nuxt.options.css` rather than
-// replacing core's, the way premium and enterprise do. So only the core layers
-// that emit no CSS are imported here, for the variables, placeholders and
+// replacing core's. So only the core layers that emit no CSS are imported here,
+// for the variables, placeholders and
 // mixins the component styles below need. Importing core's `default` instead
 // would emit the whole of it a second time.
 @import '@baserow/modules/core/assets/scss/colors';

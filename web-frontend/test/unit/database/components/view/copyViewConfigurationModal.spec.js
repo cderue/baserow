@@ -99,7 +99,7 @@ describe('CopyViewConfigurationModal', () => {
     expect(names).toEqual(['Source grid', 'Gallery'])
   })
 
-  test('the dropdown groups personal views before collaborative ones', async () => {
+  test('the dropdown only groups supported collaborative views', async () => {
     testApp.store.dispatch('view/forceCreate', {
       data: {
         id: 5,
@@ -118,14 +118,11 @@ describe('CopyViewConfigurationModal', () => {
     const titles = [
       ...element(wrapper).querySelectorAll('.dropdown-section__title'),
     ].map((node) => node.textContent.trim())
-    expect(titles).toEqual([
-      'viewOwnershipType.personal',
-      'viewOwnershipType.collaborative',
-    ])
+    expect(titles).toEqual(['viewOwnershipType.collaborative'])
     const names = [
       ...element(wrapper).querySelectorAll('.select__item-name-text'),
     ].map((node) => node.textContent.trim())
-    expect(names).toEqual(['Personal grid', 'Source grid', 'Gallery'])
+    expect(names).toEqual(['Source grid', 'Gallery'])
   })
 
   test('a grid destination renders every option of the view type', async () => {
@@ -179,8 +176,7 @@ describe('CopyViewConfigurationModal', () => {
 
     await selectSourceView(wrapper, 'Gallery')
 
-    // The gallery source doesn't support column widths, row height and
-    // groups, and the premium decorators are deactivated without a license,
+    // The gallery source doesn't support column widths, row height and groups,
     // so those switches stay disabled and unchecked.
     expect(activeSwitchLabels(wrapper)).toEqual([
       label('fieldVisibility'),

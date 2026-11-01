@@ -19,7 +19,7 @@ from baserow.core.mcp.exceptions import MCPToolInputError, flatten_error_detail
 from baserow.core.models import Workspace
 
 # ---------------------------------------------------------------------------
-# Query helpers (shared with enterprise assistant)
+# Query helpers shared with AI Agent tools
 # ---------------------------------------------------------------------------
 
 

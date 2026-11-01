@@ -1,8 +1,8 @@
 # AI providers
 
 An AI provider is one connection to an AI service, plus the list of models you want
-to use from it. Baserow uses those models for AI fields, AI formula suggestions, AI
-Agent actions in the Application Builder and Automations, and the Kuma assistant.
+to use from it. Baserow uses those models for AI Agent actions in the Application
+Builder and Automations.
 
 ## Where to configure them
 
@@ -19,10 +19,6 @@ users see changes made in **Admin tools → AI providers** after they reload the
 For every model you add, choose which features may use it under **Available for**,
 and use **Test model** before selecting it anywhere. A model that is not available
 for a feature does not appear in that feature's model list.
-
-Kuma also needs a model chosen under **AI features** in **Admin tools → AI providers**.
-Workspaces inherit that choice unless a workspace admin picks another model or
-disables Kuma. See [AI assistant configuration](ai-assistant.md).
 
 ## Amazon Bedrock
 
@@ -42,10 +38,8 @@ such as `AWS_ENDPOINT_URL`. When you add or remove the access key ID, enter the
 secret again.
 
 Use inference profile IDs such as `eu.anthropic.claude-sonnet-4-5-20250929-v1:0`:
-newer models reject their base model ID. AI fields can send images (JPEG, PNG, GIF,
-WebP; up to 20, 3.75 MB each) and documents (PDF, Word, Excel, CSV, text,
-Markdown; up to 5, 4.5 MB each). Whether a model reads them depends on the model:
-Claude and Amazon Nova do, text-only models such as gpt-oss return an error.
+newer models reject their base model ID. Whether a model supports image or document
+inputs depends on the model; text-only models such as gpt-oss return an error.
 
 Bedrock ignores per-request timeouts. A request, including **Test model**, can take
 up to 5 minutes per attempt and is tried up to 3 times before it fails.
@@ -56,8 +50,8 @@ Create an API key at [console.x.ai](https://console.x.ai), then add an **xAI**
 provider and paste the key. Add the model IDs you want, such as `grok-4.3`. xAI lists
 the current IDs in its [models documentation](https://docs.x.ai/developers/models).
 
-AI fields can send JPEG and PNG images, up to 20 MB in total per request, and small
-text files. Other files, such as PDFs, are not sent: xAI only receives their names.
+Image and small text inputs are supported. Other files, such as PDFs, are not sent:
+xAI only receives their names.
 
 Baserow sends requests to xAI's global endpoint, `https://api.x.ai`, where xAI does
 not guarantee which region processes them. Regional endpoints are not supported.
@@ -69,11 +63,9 @@ then add a **Z.ai** provider and paste the key. GLM Coding Plan subscriptions do
 cover these requests. Add the model IDs you want, such as `glm-5.2`. Z.ai lists the
 current models on its [pricing page](https://docs.z.ai/guides/overview/pricing).
 
-AI fields can send JPG and PNG images, up to 3.75 MB each, 50 per request and 14 MB
-in total, but only Z.ai's vision models, such as `glm-4.6v` and `glm-5.3-flash`, read
-them. Other files are sent only when they are small text files. Documents, such as
-PDFs, are not sent: Z.ai only receives their names. Z.ai caps the temperature at 1,
-so Baserow lowers higher values to 1.
+Image and small text inputs are supported. Z.ai's vision models, such as `glm-4.6v`
+and `glm-5.3-flash`, can read images; documents such as PDFs are not sent. Z.ai caps
+the temperature at 1, so Baserow lowers higher values to 1.
 
 Baserow sends requests to Z.ai's global endpoint, `https://api.z.ai`, where data is
 generally processed in Singapore. Z.ai does not offer an EU region.
@@ -97,15 +89,8 @@ Keep the variables until you have checked the imported providers, since rolling 
 to 2.3 needs them. Then remove them. The imported API keys are stored in the
 database, so database backups now contain them.
 
-There are two exceptions:
-
-- **Kuma's model is not imported.** Kuma keeps using
-  `BASEROW_ENTERPRISE_ASSISTANT_LLM_MODEL` until you make a model available to Kuma and
-  select it under **AI features**. Imported models are only available to AI fields and
-  AI Agent actions. Vertex AI, and Bedrock through the server's IAM role, can't be added
-  in AI providers, so keep their environment configuration. See
-  [AI assistant configuration](ai-assistant.md).
-- **Variables still work for a provider that isn't in AI providers**: for example one
+One exception remains: **variables still work for a provider that isn't in AI providers**,
+for example one
   the upgrade skipped (the upgrade log says why), one whose variables you add after
   upgrading, or an imported provider you deleted. This fallback is deprecated: add the provider
   in **Admin tools → AI providers** instead.
@@ -132,13 +117,11 @@ A workspace sees its own models first, and inherits the instance models on top:
 - Instance models the workspace has not redefined stay available.
 - A workspace can switch off an inherited instance provider. Its own models then
   stand alone, and turning the switch back on restores inheritance.
-- Disabling a model hides it from every feature in that scope.
+- Disabling a model hides it from AI Agent actions in that scope.
 
 If a workspace configures its own provider because it wants to use its own account,
 switch off the inherited instance provider of the same type. Otherwise that workspace
 can still use models that bill to the instance account. The switch does not affect
-Kuma: it keeps using the instance's Kuma model until the workspace chooses another
-model or **Disabled** under **AI features**.
 
 The upgrade does this for you: any workspace whose settings were imported is switched
 off from the matching instance provider, because its own settings replaced the

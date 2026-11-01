@@ -84,7 +84,7 @@ make it safe for another.
   host's own addresses; `ip.is_private` alone is insufficient.
 - Resolve once and connect to that validated result. Bound connection/read/statement
   time, redirects, retries, streamed and decompressed bytes, and cleanup. Check the
-  enterprise proxy impact before changing an existing flow.
+  optional plugin impact before changing an existing flow.
 - Rich-text files refer to an existing accessible `UserFile`; client filenames,
   extensions, and MIME types are not trusted. Serve active content through the
   established neutralization and content-disposition path.

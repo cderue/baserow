@@ -22,10 +22,7 @@
         </div>
         <WidgetBoard v-else :dashboard="dashboard" />
       </div>
-      <div
-        v-if="dashboard.show_logo || showReportLink"
-        class="public-dashboard__footer"
-      >
+      <div class="public-dashboard__footer">
         <template v-if="showReportLink">
           <a
             class="public-dashboard__report-abuse"
@@ -41,7 +38,7 @@
             :request-config="reportRequestConfig"
           ></ReportAbuseModal>
         </template>
-        <ExternalLinkBaserowLogo v-if="dashboard.show_logo" />
+        <ExternalLinkBaserowLogo />
       </div>
     </div>
   </div>

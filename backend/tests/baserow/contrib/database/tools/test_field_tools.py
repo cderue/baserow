@@ -1,4 +1,4 @@
-"""Tests for the field tools shared by MCP and Kuma."""
+"""Tests for the field tools shared by MCP and AI Agent."""
 
 import json
 from unittest.mock import patch

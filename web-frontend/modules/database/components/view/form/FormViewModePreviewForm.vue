@@ -104,7 +104,7 @@
         </FormViewField>
       </div>
       <div class="form-view__actions">
-        <FormViewFooterLinks :show-logo="view.show_logo"></FormViewFooterLinks>
+        <FormViewFooterLinks :show-logo="true"></FormViewFooterLinks>
         <div class="form-view__submit">
           <Editable
             ref="submit_text"

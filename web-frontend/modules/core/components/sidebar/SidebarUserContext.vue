@@ -70,12 +70,6 @@
           {{ email }}
         </span>
 
-        <component
-          :is="component"
-          v-for="(component, index) in highestLicenceTypeBadge"
-          :key="index"
-          class="sidebar__user-license"
-        ></component>
       </div>
 
       <ul class="context__menu margin-bottom-0">
@@ -169,11 +163,6 @@ export default {
     }
   },
   computed: {
-    highestLicenceTypeBadge() {
-      return Object.values(this.$registry.getAll('plugin'))
-        .map((plugin) => plugin.getHighestLicenseTypeBadge())
-        .filter((component) => component !== null)
-    },
     adminTypes() {
       return this.$registry.getAll('admin')
     },

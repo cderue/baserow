@@ -16,7 +16,6 @@ from baserow.core.psycopg import is_unique_violation_error
 
 from .constants import (
     AI_PROVIDER_FEATURE_AI_AGENT,
-    AI_PROVIDER_FEATURE_AI_FIELDS,
     AI_PROVIDER_FEATURE_MODE_DISABLED,
     AI_PROVIDER_FEATURE_MODE_INHERIT,
     AI_PROVIDER_FEATURE_MODE_LEGACY,
@@ -87,7 +86,7 @@ class AIProviderHandler:
             # Older API callers predate per-feature model eligibility. Preserve
             # the consumers those models already served instead of silently
             # opting them into every feature registered by the installation.
-            return [AI_PROVIDER_FEATURE_AI_FIELDS, AI_PROVIDER_FEATURE_AI_AGENT]
+            return [AI_PROVIDER_FEATURE_AI_AGENT]
 
         normalized = list(dict.fromkeys(feature_types))
         for feature_type in normalized:

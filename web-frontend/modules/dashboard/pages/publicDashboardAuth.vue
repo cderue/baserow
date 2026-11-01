@@ -43,7 +43,7 @@
         {{ $t('publicDashboardAuth.continue') }}
       </Button>
     </form>
-    <div v-if="showLogo" class="public-dashboard-auth__footer">
+    <div class="public-dashboard-auth__footer">
       <ExternalLinkBaserowLogo />
     </div>
   </div>
@@ -51,7 +51,6 @@
 
 <script setup>
 import {
-  computed,
   nextTick,
   onBeforeUnmount,
   onMounted,
@@ -93,7 +92,7 @@ await $i18n.loadLocaleMessages(detectedLocale.value)
 
 // The owner may have hidden the Baserow logo on the shared dashboard, which
 // applies to its password page as well.
-const { data: authInfo, error: authInfoError } = await useAsyncData(
+const { error: authInfoError } = await useAsyncData(
   `dashboard-public-auth-${slug}`,
   async () => {
     const { $client } = useNuxtApp()
@@ -128,14 +127,8 @@ if (authInfoError.value) {
   throw authInfoError.value
 }
 
-const showLogo = computed(() => authInfo.value?.show_logo !== false)
-
 useHead(() => {
-  const head = { title: $i18n.t('publicDashboardAuth.title') }
-  if (!showLogo.value) {
-    head.titleTemplate = '%s'
-  }
-  return head
+  return { title: $i18n.t('publicDashboardAuth.title') }
 })
 
 const loading = ref(false)

@@ -33,7 +33,6 @@
         "adminSettings": "Ustawienia administratora",
         "general": "Ogólne",
         "people": "Osoby",
-        "licenses": "Licencje",
         "replayGuidedTour": "Powtórz wycieczkę po Baserow"
     },
     "accountForm": {
@@ -396,7 +395,7 @@
         "settingAllowNonStaffCreateWorkspaceOperationWarning": "Dla nowych użytkowników zostanie automatycznie utworzony obszar roboczy, w którym będą mieć uprawnienia administratora.",
         "settingAllowNonStaffCreateWorkspaceOperation": "Pozwól wszystkim użytkownikom tworzyć nowe obszary robocze",
         "settingTrackWorkspaceUsage": "Monitoruj użycie obszaru roboczego",
-        "settingTrackWorkspaceUsageDescription": "Włącza nocne zadanie zliczające wykorzystanie wierszy i plików w obszarze roboczym. Dane będą dostępne na stronie administratora w wersji premium.",
+        "settingTrackWorkspaceUsageDescription": "Włącza nocne zadanie zliczające wykorzystanie wierszy i plików w obszarze roboczym. Dane będą dostępne na stronie administracyjnej obszaru roboczego.",
         "maintenance": "Konserwacja",
         "emailVerification": "Weryfikacja adresu e-mail",
         "emailVerificationDescription": "Określa opcję weryfikacji adresów e-mail.",

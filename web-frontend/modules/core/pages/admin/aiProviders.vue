@@ -15,10 +15,6 @@
         </Button>
       </header>
 
-      <AIProviderFeatureSettings
-        v-if="loaded && !loading && !initialLoadFailed"
-      />
-
       <AIProviderAdminSkeleton
         v-if="loading || (!loaded && !initialLoadFailed)"
       />
@@ -104,7 +100,6 @@ import { useNuxtApp } from '#app'
 
 import AIProviderAdminSkeleton from '@baserow/modules/core/components/ai/AIProviderAdminSkeleton'
 import AIProviderConfirmModal from '@baserow/modules/core/components/ai/AIProviderConfirmModal'
-import AIProviderFeatureSettings from '@baserow/modules/core/components/ai/AIProviderFeatureSettings'
 import AIProviderFormModal from '@baserow/modules/core/components/ai/AIProviderFormModal'
 import AIProviderItem from '@baserow/modules/core/components/ai/AIProviderItem'
 import AIProviderModelFormModal from '@baserow/modules/core/components/ai/AIProviderModelFormModal'
@@ -121,7 +116,6 @@ export default {
   components: {
     AIProviderAdminSkeleton,
     AIProviderConfirmModal,
-    AIProviderFeatureSettings,
     AIProviderFormModal,
     AIProviderItem,
     AIProviderModelFormModal,

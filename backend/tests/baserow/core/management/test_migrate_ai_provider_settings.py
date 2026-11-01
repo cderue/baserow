@@ -7,7 +7,6 @@ import pytest
 
 from baserow.core.ai_provider.constants import (
     AI_PROVIDER_FEATURE_AI_AGENT,
-    AI_PROVIDER_FEATURE_AI_FIELDS,
     PROVIDER_ENVIRONMENT_SETTINGS,
 )
 from baserow.core.ai_provider.handler import AIProviderHandler
@@ -62,15 +61,15 @@ def test_command_previews_then_imports_without_printing_secrets(settings):
         "gpt-4o-mini",
     ]
     assert list(provider.models.values_list("feature_types", flat=True)) == [
-        [AI_PROVIDER_FEATURE_AI_FIELDS, AI_PROVIDER_FEATURE_AI_AGENT],
-        [AI_PROVIDER_FEATURE_AI_FIELDS, AI_PROVIDER_FEATURE_AI_AGENT],
+        [AI_PROVIDER_FEATURE_AI_AGENT],
+        [AI_PROVIDER_FEATURE_AI_AGENT],
     ]
     assert "Imported 1 missing instance provider(s)." in out.getvalue()
     assert "super-secret" not in out.getvalue()
 
 
 @pytest.mark.django_db
-def test_command_imports_on_oss_only_installations(settings, monkeypatch):
+def test_command_imports_without_optional_feature_registrations(settings, monkeypatch):
     _clear_provider_environment(settings)
     settings.BASEROW_OPENAI_API_KEY = "oss-secret"
     settings.BASEROW_OPENAI_MODELS = ["gpt-4o-mini"]
@@ -85,10 +84,7 @@ def test_command_imports_on_oss_only_installations(settings, monkeypatch):
     )
 
     model = AIProviderModel.objects.get()
-    assert model.feature_types == [
-        AI_PROVIDER_FEATURE_AI_FIELDS,
-        AI_PROVIDER_FEATURE_AI_AGENT,
-    ]
+    assert model.feature_types == [AI_PROVIDER_FEATURE_AI_AGENT]
 
 
 @pytest.mark.django_db
@@ -300,7 +296,7 @@ def test_workspace_scope_migrates_every_current_legacy_provider_setting(data_fix
             == expected_models
         )
         assert list(provider.models.values_list("feature_types", flat=True)) == [
-            [AI_PROVIDER_FEATURE_AI_FIELDS, AI_PROVIDER_FEATURE_AI_AGENT]
+            [AI_PROVIDER_FEATURE_AI_AGENT]
             for _ in expected_models
         ]
 

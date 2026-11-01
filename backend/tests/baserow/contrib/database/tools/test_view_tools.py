@@ -1,4 +1,4 @@
-"""Tests for the view tools shared by MCP and Kuma."""
+"""Tests for the view tools shared by MCP and AI Agent."""
 
 import json
 import logging
@@ -212,8 +212,8 @@ def test_view_tools_over_mcp(data_fixture):
         "view_filters"
     }
     for tool in (tools["create_views"], tools["create_view_filters"]):
-        for kuma_only in ("ask_user", "navigate", "get_tables_schema", "sample"):
-            assert kuma_only not in tool.description
+        for agent_only in ("ask_user", "navigate", "get_tables_schema", "sample"):
+            assert agent_only not in tool.description
     assert filtered.isError is False
     assert ViewFilter.objects.get(view_id=view_id).type == "contains"
 

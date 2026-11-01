@@ -12,12 +12,12 @@
 Chat execution must survive a disconnected client, and clients must be able to
 follow the same run after returning. Execute runs in Celery, use Redis Streams
 for temporary output and replay, and keep lifecycle and final outcomes in
-Postgres. Product adapters let Kuma, agents and other features share execution,
+Postgres. Product adapters let agents and other features share execution,
 streaming and recovery guarantees.
 
 ## Context
 
-Today, Kuma executes model calls and tools while streaming the response to a
+Today, an AI Agent executes model calls and tools while streaming the response to a
 message request, and saves the final answer and model history when generation
 finishes. Closing the response cleans up its in-process tasks. A refreshed page
 can load saved messages, but cannot reattach to the in-progress output.
@@ -27,7 +27,7 @@ follow work, and refreshing or navigating away can interrupt it. Tools may
 already have changed Baserow data before the answer is saved, so sending the
 prompt again can repeat those changes.
 
-We need this now to improve Kuma's UX: users should be able to leave a page,
+We need this now to improve AI Agent UX: users should be able to leave a page,
 return to the same reply, see its outcome and stop that specific run. The agent
 builder also needs independent conversation execution, streaming, recovery and
 Stop. Other features that need background chat execution and streamed progress
@@ -109,7 +109,7 @@ streams must not occupy ordinary REST admission slots or retain a database
 connection or request thread while waiting. Apply authentication, permissions
 and CORS explicitly, check read access when a stream opens or reconnects, send
 compatible heartbeats and release blocked reads on disconnect. Stop has its own
-adapter permission check, separate from read (for Kuma, the chat's owner); a run
+adapter permission check, separate from read (for an agent, the chat's owner); a run
 identifier alone grants no access.
 
 ### 4. Keep lifecycle and final outcomes in Postgres
@@ -163,13 +163,13 @@ already-computed outcome, but cannot repeat model calls or tool effects.
 - **HTTP fits the interaction.** AI text providers commonly stream HTTP responses.
   Run output flows from server to client, while starting work and Stop use
   ordinary requests. Output events add no traffic to websocket queues.
-- **Existing client compatibility.** Kuma can adopt the shared capability while
+- **Existing client compatibility.** AI Agents can adopt the shared capability while
   retaining its current endpoint and response format through its adapter. Its
   client changes are additive: resume and run-scoped Stop.
 - **Execution survives the viewer.** Independent workers and replay let users
   refresh or return to existing work without repeating model calls or changes.
 - **Shared infrastructure and behavior.** Existing Redis, Celery and ASGI support
-  the design without another service. Kuma, agents and other consumers share
+  the design without another service. Agents and other consumers share
   execution, Stop and recovery while keeping their product behavior.
 - **Supported Redis versions.** Basic Streams operations predate Baserow's
   [minimum Redis version](../installation/supported.md) of 6.2.7. Keep command
@@ -186,7 +186,7 @@ already-computed outcome, but cannot repeat model calls or tool effects.
 
 ## Consequences
 
-- Clients can disconnect and return to the same run while work continues. Kuma
+- Clients can disconnect and return to the same run while work continues. AI Agents
   gains a more reliable UX; the agent builder and other features can use the
   same execution, streaming and recovery behavior through their adapters.
 - Postgres stores no output events and retains authoritative run state and

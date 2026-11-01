@@ -378,7 +378,7 @@
         "settingAllowNonStaffCreateWorkspaceOperationDescription": "Alapértelmezetten minden regisztrált felhasználó tud munkaterületet létrehozni. Kapcsold ezt ki ha ezt a jogot csak az adminoknak szeretnéd.",
         "settingAllowNonStaffCreateWorkspaceOperationWarning": "Az új felhasználóknak automatikusan létrejön egy munkaterület, amelyhez Admin jogosultságot kapnak.",
         "settingTrackWorkspaceUsage": "Munkaterület használat naplózása",
-        "settingTrackWorkspaceUsageDescription": "Engedélyez egy éjszaka futó munkafolyamatot, amely naplózza a sorok és fájlok számát. A premium licensszel elérhető admin felületen láthatod.",
+        "settingTrackWorkspaceUsageDescription": "Engedélyez egy éjszaka futó munkafolyamatot, amely naplózza a sorok és fájlok számát. A munkaterület adminisztrációs oldalán láthatod.",
         "userDeletionGraceDelay": "Felhasználók törlése",
         "settingUserDeletionGraceDelay": "Türelmi idő (nap)",
         "settingUserDeletionGraceDelayDescription": "Napok száma, mely után a nem használt (nem bejelentkezett) fiókok törlésre kerülnek véglegesen.",

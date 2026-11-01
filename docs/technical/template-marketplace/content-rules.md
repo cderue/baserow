@@ -61,8 +61,6 @@ workspace export; see #6116.
 | Module | What enforces it | Status | Owner |
 | --- | --- | --- | --- |
 | Builder | Pass the config through `UserSourceHandler.export_user_source` to auth providers | to do | WAB |
-| Enterprise SSO | `OpenIdConnectAppAuthProviderType` must mark `secret` sensitive | to do | WAB |
-| Enterprise SSO | `SamlAppAuthProviderType` must remove `metadata` and reset `is_verified` | to do | WAB |
 
 ## Data sync connections
 
@@ -72,9 +70,7 @@ workspace export; see #6116.
 | Database | `DataSyncType.export_serialized` must not keep `last_error` | to do | core/database |
 | Database | `two_way_sync` (in `BASE_DATA_SYNC_ALLOWED_FIELDS`) forced off | to do | core/database |
 | Database | `sensitive_fields` on `PostgreSQLDataSyncType` (password), `JiraIssuesDataSyncType`, `GitHubIssuesDataSyncType`, `GitLabIssuesDataSyncType`, `HubspotContactsDataSyncType` (tokens) | done | core/database |
-| Enterprise | `PeriodicDataSyncInterval` is not exported, so scheduled sync is off | done | core/database |
 | Database | Last synced rows are exported like any other table rows | done | core/database |
-| Enterprise | `LocalBaserowTableDataSyncType.import_serialized` remaps a source table inside the template and its `field_<id>` property keys | done | core/database |
 
 ## Trigger addresses
 
@@ -102,14 +98,10 @@ workspace export; see #6116.
 | Module | What enforces it | Status | Owner |
 | --- | --- | --- | --- |
 | Database | Rich text mentions in `LongTextFieldType` become a neutral `@user` | to do | core/database |
-| Premium | `AIFieldType.import_serialized` drops `ai_auto_update_user_id` only when not `is_duplicate`; must key on `is_user_template` | to do | core/database |
 | Integrations | Raw user ids in Local Baserow service filter values (`LocalBaserowTableServiceFilterableMixin.serialize_filters`, `deserialize_filters`) for user and collaborator filters removed | to do | WAB |
-| Enterprise | SAML identity provider metadata removed (see Login provider secrets) | to do | WAB |
 | Database | Row `created_by` and `last_modified_by` are mapped by email in `DatabaseApplicationType.import_serialized`; memberless target gives nobody | done | core/database |
 | Database | Collaborator cells (`MultipleCollaboratorsFieldType.set_import_serialized_value`) and user filters (`UserIsViewFilterType`, `MultipleCollaboratorsHasViewFilterType`) map by email; memberless target gives nobody | done | core/database |
 | Database | Form conditions (`FormViewType`) and conditional color filters (`ConditionalColorValueProviderType.set_import_serialized_value`) are exported with raw user ids; the filter import maps by email, so they become empty | done | core/database |
-| Database, premium | View owners: `ViewType.import_serialized` maps `owned_by` against members; `PersonalViewOwnershipType.can_import_view` skips personal views | done | core/database |
-| Enterprise | `RoleAssignmentSerializationProcessorType` skips role assignments, of users, teams and agents, when `include_permission_data` is `False` | done | core/database |
 | Automation | `AutomationWorkflowHandler.export_workflow` exports no `notification_recipient_emails` unless `is_duplicate`; `import_workflow_only` maps them to target workspace users | done | WAB |
 
 ## Who services run as
@@ -120,7 +112,6 @@ workspace export; see #6116.
 | Integrations | An integration running as an agent (#6064): `authorized_subject_type` and `authorized_subject_id` are in `LocalBaserowIntegrationType.sensitive_fields`, so they are removed unless publishing | in #6064 | WAB |
 | Integrations | `authorized_user` is in `LocalBaserowIntegrationType.sensitive_fields`, so it is exported as `None` wherever the config is passed; the dashboard path relies on `import_serialized` mapping against `import_workspace_id` members | done | core/database |
 | Integrations | `LocalBaserowIntegrationType.after_import` sets the installer when install sends `application_imported` with the installer, as `CoreHandler.install_template` does | done | core/database |
-| Enterprise | `LocalBaserowTableDataSyncType.import_serialized` always clears `authorized_user_id` | done | core/database |
 
 ## References outside the template
 
@@ -134,10 +125,7 @@ raw id, or `.get(id, id)`, is not allowed.
 | Integrations | Filter `field_id` in `LocalBaserowTableServiceFilterableMixin.deserialize_filters` and sort `field_id` in `LocalBaserowTableServiceSortableMixin.deserialize_sorts` | to do | WAB |
 | Integrations | `LocalBaserowAggregateRowsUserServiceType.deserialize_property` (`field_id`) | to do | WAB |
 | Integrations | `LocalBaserowFieldsUpdatedTriggerServiceType.deserialize_property` (`field_ids`) keeps raw ids when no field was copied | to do | WAB |
-| Premium | `LocalBaserowGroupedAggregateRowsUserServiceType.create_instance_from_serialized` keeps series, group by and sort field ids when no field was copied | to do | WAB |
-| Enterprise | `LocalBaserowUserSourceType.deserialize_property` keeps `table_id` and field ids when no table was copied | to do | WAB |
 | Dashboard | `DashboardDataSourceHandler.import_data_source` resolves the integration with `.get(id, id)` | to do | WAB |
-| Enterprise | `LocalBaserowTableDataSyncType.import_serialized` must clear an unmapped source table and remap or clear `source_table_view_id` | to do | core/database |
 | Integrations | `CoreStartWorkflowServiceType.import_workflow_id` refuses a workflow outside `import_workspace_id` | done | WAB |
 
 Button field row actions use the Local Baserow service types above and follow them.
@@ -180,7 +168,6 @@ Button field row actions use the Local Baserow service types above and follow th
 
 | Module | What enforces it | Status | Owner |
 | --- | --- | --- | --- |
-| Enterprise builder | `CustomCodeBuilderApplicationTypeMixin.import_serialized` and `CoreCodeActionType` respect the per-application untrusted content flag, off in installed copies | done | WAB |
 | Builder frontend | The template allowlist has no `ReadApplicationOperationType`, so the builder preview and `PublicCustomCodeView` refuse template viewers; custom code is only added by `PublicPageContent.vue` | done | WAB |
 | Builder | `DispatchBuilderWorkflowActionOperationType` is not on the template allowlist, so `CoreCodeActionType` never runs in the preview | done | WAB |
 

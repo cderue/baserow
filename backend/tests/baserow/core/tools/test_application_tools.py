@@ -1,4 +1,4 @@
-"""Tests for the application tools shared by MCP and Kuma."""
+"""Tests for the application tools shared by MCP and AI Agent."""
 
 import json
 

@@ -31,8 +31,7 @@
         "adminTools": "Ferramentas administrativas",
         "home": "Home",
         "general": "Geral",
-        "people": "Pessoas",
-        "licenses": "Licenças"
+        "people": "Pessoas"
     },
     "accountForm": {
         "nameLabel": "Seu nome",
@@ -598,7 +597,7 @@
         "dashboard": {
             "title": "Painel de controle",
             "alertTitle": "Nós precisamos da sua ajuda!",
-            "alertText": "Se você achar o Baserow útil, então patrocinar, estrelar ou compartilhar conosco é muito apreciado. Ao nos patrocinar no GitHub, você terá acesso antecipado aos recursos premium!",
+            "alertText": "Se você achar o Baserow útil, então patrocinar, estrelar ou compartilhar conosco é muito apreciado. Ao nos patrocinar no GitHub, você terá acesso antecipado a novos recursos!",
             "tweetContent": "Confira {'@'}baserow uma ferramenta de banco de dados sem código de código aberto e uma alternativa ao Airtable!",
             "redditTitle": "'Baserow - Um banco de dados de código-aberto e no-code",
             "noWorkspaceTitle": "Sem grupos encontrados",

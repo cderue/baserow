@@ -132,7 +132,7 @@ exports[`GridViewRows component with decoration > Should show cant add decorator
     <div
       class="tooltip__content"
     >
-      viewDecoratorType.onlyForPremium
+      can't be added reason
     </div>
   </div>
   <div
@@ -156,7 +156,7 @@ exports[`GridViewRows component with decoration > Should show unavailable decora
     <div
       class="tooltip__content"
     >
-      viewDecoratorType.onlyForPremium
+      unavailability reason
     </div>
   </div>
   <div

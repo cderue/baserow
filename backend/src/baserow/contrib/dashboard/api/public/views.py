@@ -122,9 +122,8 @@ class PublicDashboardAuthView(APIView):
         tags=["Dashboard public"],
         operation_id="get_public_dashboard_auth_info",
         description=(
-            "Returns what the password page of a publicly shared dashboard needs "
-            "before the password is entered, currently whether the Baserow logo "
-            "must be shown. Nothing about the dashboard itself is revealed."
+            "Returns the information needed by the password page of a publicly "
+            "shared dashboard. Nothing about the dashboard itself is revealed."
         ),
         request=None,
         responses={
@@ -142,7 +141,7 @@ class PublicDashboardAuthView(APIView):
             request.user, slug, raise_authorization_error=False
         )
         return Response(
-            PublicDashboardAuthInfoSerializer({"show_logo": dashboard.show_logo}).data
+            PublicDashboardAuthInfoSerializer({"show_logo": True}).data
         )
 
     @extend_schema(

@@ -104,6 +104,8 @@ def test_get_public_dashboard_info(api_client, data_fixture):
     dashboard, data_source, widget = create_shared_dashboard(
         data_fixture, user, public=True
     )
+    dashboard.show_logo = False
+    dashboard.save()
 
     response = api_client.get(public_info_url(dashboard.slug), format="json")
 
@@ -423,7 +425,7 @@ def test_get_public_dashboard_auth_info(api_client, data_fixture):
     dashboard, _, _ = create_shared_dashboard(data_fixture, user, public=True)
     protect_with_password(dashboard)
 
-    # The password page follows the logo choice of the owner, without a token.
+    # The password page always displays the Baserow logo.
     response = api_client.get(public_auth_url(dashboard.slug), format="json")
     assert response.status_code == HTTP_200_OK
     assert response.json() == {"show_logo": True}
@@ -433,7 +435,7 @@ def test_get_public_dashboard_auth_info(api_client, data_fixture):
 
     response = api_client.get(public_auth_url(dashboard.slug), format="json")
     assert response.status_code == HTTP_200_OK
-    assert response.json() == {"show_logo": False}
+    assert response.json() == {"show_logo": True}
 
 
 @pytest.mark.django_db

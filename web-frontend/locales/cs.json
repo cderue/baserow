@@ -332,9 +332,6 @@
             "formLinkName": "formulář"
         }
     },
-    "premium": {
-        "deactivated": ""
-    },
     "trashType": {
         "workspace": "pracovní prostor",
         "application": "aplikace",

@@ -1,4 +1,4 @@
-"""Tests for add_nodes, update_nodes and delete_nodes, shared by MCP and Kuma."""
+"""Tests for add_nodes, update_nodes and delete_nodes, shared by MCP and AI Agent."""
 
 from unittest.mock import patch
 from uuid import uuid4

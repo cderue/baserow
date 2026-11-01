@@ -48,11 +48,7 @@ else:
     BASEROW_PLUGIN_FOLDERS = []
 
 BASEROW_BACKEND_PLUGIN_NAMES = [d.name for d in BASEROW_PLUGIN_FOLDERS]
-BASEROW_OSS_ONLY = bool(os.getenv("BASEROW_OSS_ONLY", ""))
-if BASEROW_OSS_ONLY:
-    BASEROW_BUILT_IN_PLUGINS = []
-else:
-    BASEROW_BUILT_IN_PLUGINS = ["baserow_premium", "baserow_enterprise"]
+BASEROW_BUILT_IN_PLUGINS = []
 
 # SECURITY WARNING: keep the secret key used in production secret!
 if "SECRET_KEY" in os.environ:
@@ -1721,7 +1717,6 @@ BASEROW_IMPORT_EXPORT_TABLE_ROWS_COUNT_LIMIT = int(
 
 PERMISSION_MANAGERS = [
     "workspace_role_availability",
-    "view_ownership",
     "core",
     "setting_operation",
     "staff",
@@ -1733,18 +1728,10 @@ PERMISSION_MANAGERS = [
     "allow_public_builder",
     "member",
     "token",
-    "write_field_values",
-    "role",
     "basic",
     "automation_workflow",
     "automation_node",
 ]
-
-if "baserow_enterprise" not in INSTALLED_APPS:
-    PERMISSION_MANAGERS.remove("write_field_values")
-    PERMISSION_MANAGERS.remove("role")
-if "baserow_premium" not in INSTALLED_APPS:
-    PERMISSION_MANAGERS.remove("view_ownership")
 
 
 OLD_ACTION_CLEANUP_INTERVAL_MINUTES = os.getenv(
@@ -2049,8 +2036,6 @@ BASEROW_MAX_HEALTHY_CELERY_QUEUE_SIZE = int(
 
 BASEROW_USE_LOCAL_CACHE = str_to_bool(os.getenv("BASEROW_USE_LOCAL_CACHE", "true"))
 
-BASEROW_EMBEDDINGS_API_URL = os.getenv("BASEROW_EMBEDDINGS_API_URL", "")
-
 # -- CACHALOT SETTINGS --
 
 CACHALOT_TIMEOUT = int(os.getenv("BASEROW_CACHALOT_TIMEOUT", 60 * 60 * 24 * 7))
@@ -2087,12 +2072,6 @@ else:
         "database_fieldependency",
         "database_linkrowfield",
         "database_selectoption",
-        "baserow_premium_license",
-        "baserow_premium_licenseuser",
-        "baserow_enterprise_role",
-        "baserow_enterprise_roleassignment",
-        "baserow_enterprise_team",
-        "baserow_enterprise_teamsubject",
     ]
 
 # This list will have priority over CACHALOT_ONLY_CACHABLE_TABLES.
@@ -2111,7 +2090,6 @@ CACHALOT_UNCACHABLE_TABLES = [
     "django_migrations",
     "core_action",
     "database_token",
-    "baserow_enterprise_auditlogentry",
 ]
 
 

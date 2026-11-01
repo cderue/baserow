@@ -6,7 +6,7 @@ from pydantic_ai.profiles.openai import OpenAIModelProfile
 from pydantic_ai.providers.zai import ZaiProvider
 from pydantic_ai.settings import ModelSettings, ThinkingLevel, merge_model_settings
 
-# Covers Kuma's title and the 256-token model tests, not the agents' 4k+ budgets.
+# Covers concise responses and 256-token model tests, not agents' larger budgets.
 SHORT_ANSWER_MAX_TOKENS = 1024
 
 

@@ -21,7 +21,7 @@ from tests.baserow.contrib.automation.tools.conftest import (
 READ_TOOLS = ["list_workflows", "list_nodes"]
 EDIT_TOOLS = ["create_workflows", "add_nodes", "update_nodes"]
 ALL_TOOLS = [*READ_TOOLS, *EDIT_TOOLS, "delete_nodes"]
-KUMA_ONLY = ("ask_user", "navigate", "thought", "iterator", "load_")
+AGENT_ONLY = ("ask_user", "navigate", "thought", "iterator", "load_")
 
 
 def _session(endpoint, callback):
@@ -64,8 +64,8 @@ def test_read_tools_over_mcp(data_fixture):
     assert set(tools) == set(READ_TOOLS)
     for tool in tools.values():
         assert tool.annotations.readOnlyHint is True
-        for kuma_only in KUMA_ONLY:
-            assert kuma_only not in tool.description
+        for agent_only in AGENT_ONLY:
+            assert agent_only not in tool.description
     assert json.loads(workflows.content[0].text)["automations"][0]["workflows"] == [
         {"id": workflow.id, "name": "Flow", "state": "draft"}
     ]
@@ -195,8 +195,8 @@ def test_write_tools_over_mcp(data_fixture):
     tools = {tool.name: tool for tool in listed.tools}
     assert set(tools) == set(ALL_TOOLS)
     for tool in tools.values():
-        for kuma_only in KUMA_ONLY:
-            assert kuma_only not in tool.description
+        for agent_only in AGENT_ONLY:
+            assert agent_only not in tool.description
     assert added["formula_errors"][0]["field"] == "subject"
     assert "formula_errors" not in updated
     assert updated["updated_nodes"] == [{"node_id": second_id, "label": "Mail"}]

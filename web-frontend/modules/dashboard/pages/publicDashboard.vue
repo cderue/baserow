@@ -131,11 +131,7 @@ if (redirect) {
 const loading = computed(() => $store.getters['dashboardApplication/isLoading'])
 
 useHead(() => {
-  const head = { title: dashboard.value?.name || 'Dashboard' }
-  if (dashboard.value && !dashboard.value.show_logo) {
-    head.titleTemplate = '%s'
-  }
-  return head
+  return { title: dashboard.value?.name || 'Dashboard' }
 })
 
 onMounted(() => {

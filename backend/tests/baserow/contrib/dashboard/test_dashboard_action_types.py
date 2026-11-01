@@ -135,11 +135,11 @@ def test_undo_update_dashboard_sharing_only_restores_the_provided_fields(
     )
 
     action_type_registry.get_by_type(UpdateDashboardSharingActionType).do(
-        user, dashboard.id, show_logo=False
+        user, dashboard.id, public=False
     )
-    # A change made in between must survive the undo of the logo change.
+    # A legacy logo value is outside the sharing state and must survive undo.
     dashboard.refresh_from_db()
-    dashboard.public = False
+    dashboard.show_logo = False
     dashboard.save()
 
     ActionHandler.undo(
@@ -147,8 +147,8 @@ def test_undo_update_dashboard_sharing_only_restores_the_provided_fields(
     )
 
     dashboard.refresh_from_db()
-    assert dashboard.show_logo is True
-    assert dashboard.public is False
+    assert dashboard.show_logo is False
+    assert dashboard.public is True
 
 
 @pytest.mark.django_db
@@ -200,8 +200,7 @@ OTHER_HASH = Dashboard.make_password("other-password")
             "password changed",
         ),
         ({"public_password": HASH}, {"public_password": HASH}, "nothing changed"),
-        ({"show_logo": False}, {"show_logo": True}, "Baserow logo hidden"),
-        ({"show_logo": True}, {"show_logo": False}, "Baserow logo shown"),
+        ({"show_logo": False}, {"show_logo": True}, "nothing changed"),
         ({"public": True}, {"public": True}, "nothing changed"),
         ({}, {}, "nothing changed"),
     ],
